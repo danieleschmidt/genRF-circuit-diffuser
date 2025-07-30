@@ -205,3 +205,52 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# GenRF Circuit Diffuser specific
+models/
+*.pt
+*.pth
+*.ckpt
+outputs/
+generated_circuits/
+spice_netlists/
+*.cir
+*.net
+*.sp
+*.asc
+
+# SPICE simulation files
+*.raw
+*.log
+*.mt0
+*.tr0
+*.ac0
+*.dc0
+*.op
+*.noise
+
+# EDA tool files
+*.il
+*.va
+*.ocn
+*.lym
+cadence_logs/
+ads_prj/
+
+# Temporary ML training files
+wandb/
+tensorboard_logs/
+checkpoints/
+experiments/
+
+# Jupyter notebook outputs
+*.ipynb_checkpoints/
+
+# Performance benchmarks
+benchmarks/results/
+profile_output/
+
+# Security and credentials
+.secrets
+credentials.json
+api_keys.env
