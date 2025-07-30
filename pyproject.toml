@@ -85,6 +85,11 @@ disallow_untyped_defs = true
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 addopts = "--cov=genrf --cov-report=html --cov-report=term-missing"
+markers = [
+    "benchmark: marks tests as benchmarks (deselect with '-m \"not benchmark\"')",
+    "integration: marks tests as integration tests (deselect with '-m \"not integration\"')",
+    "slow: marks tests as slow running (deselect with '-m \"not slow\"')",
+]
 
 [tool.coverage.run]
 source = ["genrf"]
@@ -97,3 +102,7 @@ exclude_lines = [
     "raise AssertionError",
     "raise NotImplementedError",
 ]
+
+[tool.bandit]
+exclude_dirs = ["tests", "benchmarks"]
+skips = ["B101", "B601"]  # Skip assert_used and shell_injection for test files

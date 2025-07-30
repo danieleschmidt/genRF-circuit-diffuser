@@ -1,0 +1,67 @@
+# Benchmark Configuration for GenRF Circuit Diffuser
+
+# Performance targets and thresholds
+performance_targets:
+  circuit_generation:
+    time_limit_seconds: 5.0
+    memory_limit_mb: 512
+    throughput_circuits_per_minute: 12
+
+  spice_simulation:
+    time_limit_seconds: 2.0
+    memory_limit_mb: 256
+    concurrent_simulations: 4
+
+  model_inference:
+    time_limit_seconds: 0.5
+    batch_size: 32
+    gpu_memory_limit_mb: 2048
+
+# Test scenarios
+test_scenarios:
+  - name: "LNA_2G4"
+    circuit_type: "LNA"
+    frequency: 2.4e9
+    complexity: "medium"
+    expected_generation_time: 3.0
+
+  - name: "Mixer_28GHz"
+    circuit_type: "Mixer"
+    frequency: 28e9
+    complexity: "high"
+    expected_generation_time: 8.0
+
+  - name: "VCO_5G8"
+    circuit_type: "VCO"
+    frequency: 5.8e9
+    complexity: "low"
+    expected_generation_time: 2.0
+
+# Benchmark suite configuration
+benchmark_suite:
+  warmup_iterations: 3
+  measurement_iterations: 10
+  timeout_seconds: 300
+  parallel_workers: 4
+
+# Output configuration
+output:
+  format: "json"
+  file_path: "benchmarks/results/benchmark_results.json"
+  include_system_info: true
+  compare_with_baseline: true
+  baseline_file: "benchmarks/baseline/baseline_results.json"
+
+# System monitoring
+monitoring:
+  cpu_usage: true
+  memory_usage: true
+  gpu_usage: true
+  disk_io: true
+  network_io: false
+
+# Regression detection
+regression_detection:
+  performance_threshold: 0.05  # 5% degradation threshold
+  memory_threshold: 0.10      # 10% memory increase threshold
+  alert_on_regression: true

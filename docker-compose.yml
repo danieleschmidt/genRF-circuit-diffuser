@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  genrf-dev:
+    build:
+      context: .
+      target: development
+    volumes:
+      - .:/app
+      - genrf-models:/app/models
+      - genrf-outputs:/app/outputs
+    environment:
+      - GENRF_ENV=development
+    ports:
+      - "3000:3000"  # Dashboard
+    command: python -m genrf.cli dashboard --host 0.0.0.0 --port 3000
+
+  genrf-jupyter:
+    build:
+      context: .
+      target: jupyter
+    volumes:
+      - .:/app
+      - genrf-models:/app/models
+      - genrf-notebooks:/app/notebooks
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+    ports:
+      - "8888:8888"
+
+  genrf-production:
+    build:
+      context: .
+      target: production
+    volumes:
+      - genrf-models:/app/models
+      - genrf-outputs:/app/outputs
+    environment:
+      - GENRF_ENV=production
+    restart: unless-stopped
+
+  # Optional: SPICE simulation service
+  spice-simulator:
+    image: ubuntu:22.04
+    volumes:
+      - genrf-outputs:/circuits
+    command: >
+      bash -c "
+        apt-get update &&
+        apt-get install -y ngspice &&
+        ngspice -b /circuits/simulation.cir
+      "
+
+volumes:
+  genrf-models:
+    driver: local
+  genrf-outputs:
+    driver: local
+  genrf-notebooks:
+    driver: local
+
+networks:
+  default:
+    name: genrf-network

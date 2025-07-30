@@ -47,3 +47,32 @@ upload-test: build ## Upload to TestPyPI
 
 upload: build ## Upload to PyPI
 	python -m twine upload dist/*
+
+# Enhanced development targets
+test-unit: ## Run unit tests only
+	pytest tests/unit/
+
+test-integration: ## Run integration tests only
+	pytest tests/integration/
+
+test-performance: ## Run performance tests only
+	pytest tests/performance/ --benchmark-only
+
+benchmark: ## Run performance benchmarks
+	python benchmarks/run_benchmarks.py
+
+security-scan: ## Run security scanning
+	bandit -r genrf -f json -o bandit-report.json || true
+	safety check --json --output safety-report.json || true
+
+pre-commit-run: ## Run pre-commit hooks on all files
+	pre-commit run --all-files
+
+docker-build: ## Build Docker image
+	docker build -t genrf:latest .
+
+docker-dev: ## Run development container
+	docker-compose up genrf-dev
+
+docker-jupyter: ## Run Jupyter container
+	docker-compose up genrf-jupyter
