@@ -1,0 +1,98 @@
+name: Feature Request
+description: Suggest a new feature or enhancement
+title: "[FEAT] "
+labels: ["enhancement", "triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting a new feature! Please provide detailed information to help us understand your request.
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Feature Category
+      description: What area does this feature relate to?
+      options:
+        - Circuit Generation (New circuit types, topologies)
+        - SPICE Integration (New simulators, models)
+        - Export/Integration (EDA tools, formats)
+        - Optimization (New algorithms, methods)
+        - Visualization (Plots, dashboards)
+        - Performance (Speed, memory)
+        - Documentation (Tutorials, examples)
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Feature Summary
+      description: Brief summary of the proposed feature
+      placeholder: A concise description of what you'd like to see added
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem would this feature solve?
+      placeholder: Describe the current limitation or pain point this addresses
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: How do you envision this feature working?
+      placeholder: |
+        Describe your ideal solution, including:
+        - API design ideas
+        - User workflow
+        - Technical approach (if known)
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: What alternatives have you considered?
+      placeholder: Other approaches or workarounds you've thought about
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case
+      description: Specific example of how you would use this feature
+      placeholder: |
+        Example scenario:
+        1. User wants to...
+        2. They would call...
+        3. Expected result...
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - Low (Nice to have)
+        - Medium (Would be helpful)
+        - High (Important for my work)
+        - Critical (Blocking my project)
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      options:
+        - label: I would be willing to contribute to implementing this feature
+          required: false
