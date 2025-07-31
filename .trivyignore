@@ -1,0 +1,29 @@
+# Trivy ignore file for vulnerability scanning
+# Use this file to ignore specific vulnerabilities that are:
+# 1. False positives
+# 2. Accepted risks with documented justification
+# 3. Waiting for upstream fixes
+
+# Example format:
+# CVE-2021-1234  # Justification: False positive for our use case
+# CVE-2021-5678  # Justification: Accepted risk - low impact, no fix available
+
+# ML/AI Framework specific ignores
+# Many ML libraries have known vulnerabilities in dependencies that don't affect our use case
+
+# PyTorch related - ignore development/testing related vulnerabilities
+# that don't affect production model inference
+# CVE-YYYY-XXXX  # PyTorch dev dependency vulnerability - not used in production
+
+# NumPy/SciPy - ignore vulnerabilities in optional dependencies
+# CVE-YYYY-XXXX  # NumPy optional dependency - not used in our workflow
+
+# Matplotlib - ignore GUI-related vulnerabilities as we use headless rendering
+# CVE-YYYY-XXXX  # Matplotlib GUI backend - not used in production
+
+# SPICE Integration - ignore simulation-only vulnerabilities
+# CVE-YYYY-XXXX  # PySpice simulation environment - sandboxed execution
+
+# Note: This file should be regularly reviewed and updated
+# All ignored CVEs should have documented justifications
+# Consider fixing or upgrading instead of ignoring when possible

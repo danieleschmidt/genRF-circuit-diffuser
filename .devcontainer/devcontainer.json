@@ -1,0 +1,103 @@
+{
+	"name": "GenRF Circuit Diffuser Development",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"context": ".."
+	},
+	"features": {
+		"ghcr.io/devcontainers/features/git:1": {},
+		"ghcr.io/devcontainers/features/github-cli:1": {},
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
+		"ghcr.io/devcontainers/features/node:1": {
+			"version": "18"
+		}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"ms-python.black-formatter",
+				"ms-python.isort",
+				"ms-python.flake8",
+				"ms-python.mypy-type-checker",
+				"ms-toolsai.jupyter",
+				"charliermarsh.ruff",
+				"njpwerner.autodocstring",
+				"redhat.vscode-yaml",
+				"aaron-bond.better-comments",
+				"streetsidesoftware.code-spell-checker",
+				"davidanson.vscode-markdownlint",
+				"yzhang.markdown-all-in-one",
+				"github.vscode-pull-request-github",
+				"eamodio.gitlens",
+				"ryanluker.vscode-coverage-gutters",
+				"gruntfuggly.todo-tree",
+				"github.copilot",
+				"github.copilot-chat"
+			],
+			"settings": {
+				"python.defaultInterpreterPath": "/opt/conda/bin/python",
+				"python.terminal.activateEnvironment": true,
+				"python.linting.enabled": true,
+				"python.linting.flake8Enabled": true,
+				"python.linting.mypyEnabled": true,
+				"python.formatting.provider": "black",
+				"editor.formatOnSave": true,
+				"python.testing.pytestEnabled": true,
+				"terminal.integrated.shell.linux": "/bin/bash"
+			}
+		}
+	},
+	"forwardPorts": [
+		8080,
+		8081,
+		8082,
+		3000,
+		9090,
+		9093
+	],
+	"portsAttributes": {
+		"8080": {
+			"label": "GenRF API",
+			"onAutoForward": "notify"
+		},
+		"8081": {
+			"label": "ML Models API",
+			"onAutoForward": "silent"
+		},
+		"8082": {
+			"label": "SPICE Simulation API",
+			"onAutoForward": "silent"
+		},
+		"3000": {
+			"label": "Grafana Dashboard",
+			"onAutoForward": "openBrowser"
+		},
+		"9090": {
+			"label": "Prometheus",
+			"onAutoForward": "silent"
+		},
+		"9093": {
+			"label": "Alertmanager",
+			"onAutoForward": "silent"
+		}
+	},
+	"postCreateCommand": "bash .devcontainer/setup.sh",
+	"postStartCommand": "git config --global safe.directory ${containerWorkspaceFolder}",
+	"remoteUser": "vscode",
+	"containerEnv": {
+		"PYTHONPATH": "${containerWorkspaceFolder}",
+		"GENRF_ENV": "development",
+		"SPICE_ENGINE": "ngspice"
+	},
+	"mounts": [
+		"source=${localWorkspaceFolder}/.vscode,target=${containerWorkspaceFolder}/.vscode,type=bind,consistency=cached",
+		"source=genrf-models,target=/opt/genrf/models,type=volume",
+		"source=genrf-cache,target=/opt/genrf/cache,type=volume"
+	],
+	"runArgs": [
+		"--gpus=all"
+	],
+	"shutdownAction": "stopContainer"
+}

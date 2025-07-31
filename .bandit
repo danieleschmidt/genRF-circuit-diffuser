@@ -1,0 +1,42 @@
+[bandit]
+# Bandit configuration for Python security linting
+# See: https://bandit.readthedocs.io/en/latest/config.html
+
+# Exclude test directories and benchmark files
+exclude_dirs = ['tests', 'benchmarks', 'docs/_build', '.venv', 'venv']
+
+# Skip specific tests that are not relevant for this project
+skips = [
+    'B101',  # assert_used - we use asserts in tests
+    'B601',  # paramiko_calls - not using paramiko
+    'B602',  # subprocess_popen_with_shell_equals_true - handled carefully
+    'B603',  # subprocess_without_shell_equals_true - not an issue for our use case
+    'B311',  # random - using secure random where needed
+]
+
+# Tests to run (empty means run all except skipped)
+tests = []
+
+# Confidence levels: LOW, MEDIUM, HIGH
+# Only report MEDIUM and HIGH confidence issues
+confidence = ['MEDIUM', 'HIGH']
+
+# Severity levels: LOW, MEDIUM, HIGH
+# Report all severity levels for comprehensive security analysis
+severity = ['LOW', 'MEDIUM', 'HIGH']
+
+# Additional configuration for ML/AI specific security concerns
+[bandit.hardcoded_password_string]
+# Exclude common ML model parameter names that may trigger false positives
+word_list = [
+    'password', 'pass', 'passwd', 'pwd', 'token', 'secret', 'key', 'api_key',
+    'auth', 'credential', 'private', 'signature'
+]
+
+[bandit.hardcoded_password_funcarg]
+# Function arguments that should not contain hardcoded passwords
+arg_names = ['password', 'pass', 'passwd', 'pwd', 'token', 'secret', 'key']
+
+[bandit.assert_used]
+# Skip assert_used in test files
+skips = ['**/test_*.py', '**/tests/**/*.py', '**/conftest.py']

@@ -1,0 +1,377 @@
+# Comprehensive CI/CD Workflow Template for GenRF Circuit Diffuser
+# This template should be placed in .github/workflows/ci.yml
+#
+# Features:
+# - Multi-Python version testing (3.8, 3.9, 3.10, 3.11)
+# - GPU-enabled testing for ML models
+# - Comprehensive security scanning
+# - Performance regression testing
+# - SBOM generation for ML dependencies
+# - Container security scanning
+
+name: Comprehensive CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Weekly security scan
+    - cron: '0 3 * * 1'
+
+env:
+  PYTHON_DEFAULT: '3.10'
+  PYTORCH_VERSION: '1.12.0'
+
+jobs:
+  # Code Quality and Linting
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_DEFAULT }}
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          
+      - name: Run black
+        run: black --check .
+        
+      - name: Run isort
+        run: isort --check-only .
+        
+      - name: Run flake8
+        run: flake8 .
+        
+      - name: Run mypy
+        run: mypy genrf/
+        
+      - name: Run bandit security linter
+        run: bandit -r genrf/ -f json -o bandit-report.json
+        continue-on-error: true
+        
+      - name: Upload bandit results
+        uses: actions/upload-artifact@v3
+        with:
+          name: bandit-results
+          path: bandit-report.json
+
+  # Multi-version Testing
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+        exclude:
+          # Skip some combinations to reduce CI time
+          - os: windows-latest
+            python-version: '3.8'
+          - os: macos-latest
+            python-version: '3.8'
+            
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,spice]"
+          
+      - name: Run unit tests
+        run: pytest tests/unit/ -v --cov=genrf --cov-report=xml
+        
+      - name: Run integration tests
+        run: pytest tests/integration/ -v -m "not slow"
+        
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-${{ matrix.os }}-py${{ matrix.python-version }}
+
+  # GPU-enabled ML Model Testing
+  test-gpu:
+    runs-on: [self-hosted, gpu]  # Requires GPU runner
+    if: contains(github.event.pull_request.labels.*.name, 'gpu-test') || github.event_name == 'schedule'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_DEFAULT }}
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch==${{ env.PYTORCH_VERSION }}+cu118 -f https://download.pytorch.org/whl/torch_stable.html
+          pip install -e ".[dev,spice]"
+          
+      - name: Run GPU model tests
+        run: pytest tests/unit/test_models.py -v -m "gpu"
+        env:
+          CUDA_VISIBLE_DEVICES: 0
+
+  # Performance Regression Testing
+  performance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Need full history for regression comparison
+          
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_DEFAULT }}
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          pip install pytest-benchmark
+          
+      - name: Run performance benchmarks
+        run: pytest tests/performance/ -v --benchmark-json=benchmark.json
+        
+      - name: Store benchmark result
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          tool: 'pytest'
+          output-file-path: benchmark.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
+          comment-on-alert: true
+          alert-threshold: '200%'  # Alert if performance degrades by 200%
+
+  # Security Vulnerability Scanning
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+          
+      - name: Python dependency vulnerability scan
+        run: |
+          pip install safety
+          safety check --json --output safety-report.json
+        continue-on-error: true
+        
+      - name: Upload safety results
+        uses: actions/upload-artifact@v3
+        with:
+          name: safety-results
+          path: safety-report.json
+
+  # SBOM Generation for ML Dependencies
+  sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_DEFAULT }}
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,spice]"
+          
+      - name: Generate SBOM
+        run: |
+          pip install cyclonedx-bom
+          cyclonedx-py -o sbom.json
+          
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v3
+        with:
+          name: sbom
+          path: sbom.json
+          
+      - name: Attest SBOM
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: sbom.json
+
+  # Container Build and Security Scan
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          tags: genrf:test
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          
+      - name: Run Trivy container scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'genrf:test'
+          format: 'sarif'
+          output: 'trivy-container.sarif'
+          
+      - name: Upload container scan results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-container.sarif'
+
+  # Documentation Generation
+  docs:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_DEFAULT }}
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[docs]"
+          
+      - name: Build documentation
+        run: |
+          cd docs
+          make html
+          
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/_build/html
+
+  # ML Model Validation
+  model-validation:
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.changed_files, 'models/') || github.event_name == 'schedule'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_DEFAULT }}
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+          pip install tensorboard
+          
+      - name: Validate model architectures
+        run: python scripts/validate_models.py
+        
+      - name: Check model performance regression
+        run: python scripts/model_performance_check.py
+
+  # Integration Testing with SPICE
+  spice-integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_DEFAULT }}
+          
+      - name: Install NgSpice
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ngspice
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev,spice]"
+          
+      - name: Run SPICE integration tests
+        run: pytest tests/integration/test_spice_integration.py -v
+        
+      - name: Generate circuit validation report
+        run: python scripts/generate_validation_report.py
+        
+      - name: Upload validation report
+        uses: actions/upload-artifact@v3
+        with:
+          name: circuit-validation-report
+          path: validation_report.html
+
+  # Release Process (triggered on tags)
+  release:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [quality, test, security, docker]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_DEFAULT }}
+          
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+          
+      - name: Build package
+        run: python -m build
+        
+      - name: Publish to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: twine upload dist/*
+        
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*
+          generate_release_notes: true
+
+# Additional workflow jobs can be added for:
+# - Dependency updates (Dependabot + automated testing)
+# - Nightly builds with latest dependencies
+# - Cross-platform compatibility testing
+# - Load testing for circuit generation
+# - Integration with external EDA tools

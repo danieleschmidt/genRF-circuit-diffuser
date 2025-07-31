@@ -1,0 +1,99 @@
+# Prometheus configuration for GenRF Circuit Diffuser monitoring
+# This file defines monitoring targets and scraping configuration
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    project: 'genrf-circuit-diffuser'
+    environment: 'production'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+# Load rules once and periodically evaluate them
+rule_files:
+  - "alert_rules.yml"
+  - "recording_rules.yml"
+
+# Scrape configuration
+scrape_configs:
+  # Monitor the application itself
+  - job_name: 'genrf-circuit-diffuser'
+    scrape_interval: 30s
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['localhost:8080']
+    scrape_timeout: 10s
+    
+  # Monitor ML model inference performance
+  - job_name: 'genrf-ml-models'
+    scrape_interval: 60s
+    metrics_path: '/model/metrics'
+    static_configs:
+      - targets: ['localhost:8081']
+    scrape_timeout: 30s
+    
+  # Monitor SPICE simulation performance
+  - job_name: 'genrf-spice-simulation'
+    scrape_interval: 120s
+    metrics_path: '/spice/metrics'
+    static_configs:
+      - targets: ['localhost:8082']
+    scrape_timeout: 60s
+    
+  # System metrics (node_exporter)
+  - job_name: 'node-exporter'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['localhost:9100']
+      
+  # GPU metrics (if available)
+  - job_name: 'gpu-metrics'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['localhost:9101']
+    honor_labels: true
+    
+  # Application performance monitoring
+  - job_name: 'genrf-apm'
+    scrape_interval: 15s
+    metrics_path: '/apm/metrics'
+    static_configs:
+      - targets: ['localhost:8083']
+      
+  # Circuit generation pipeline metrics
+  - job_name: 'genrf-pipeline'
+    scrape_interval: 60s
+    metrics_path: '/pipeline/metrics'
+    static_configs:
+      - targets: ['localhost:8084']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: localhost:8084
+
+# Remote write configuration for long-term storage
+remote_write:
+  - url: "https://prometheus-remote-write.example.com/api/v1/write"
+    basic_auth:
+      username: "${PROMETHEUS_REMOTE_WRITE_USERNAME}"
+      password: "${PROMETHEUS_REMOTE_WRITE_PASSWORD}"
+    write_relabel_configs:
+      - source_labels: [__name__]
+        regex: 'genrf_.*'
+        action: keep
+
+# Remote read configuration for querying historical data
+remote_read:
+  - url: "https://prometheus-remote-read.example.com/api/v1/read"
+    basic_auth:
+      username: "${PROMETHEUS_REMOTE_READ_USERNAME}"
+      password: "${PROMETHEUS_REMOTE_READ_PASSWORD}"

@@ -1,0 +1,64 @@
+# Dependabot configuration for automated dependency updates
+# This file enables automated security updates and dependency management
+
+version: 2
+updates:
+  # Python dependencies
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 10
+    allow:
+      - dependency-type: "direct"
+      - dependency-type: "indirect"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    reviewers:
+      - "maintainers-team"
+    assignees:
+      - "security-team"
+    labels:
+      - "dependencies"
+      - "security"
+    # Separate PyTorch updates due to complexity
+    ignore:
+      - dependency-name: "torch"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "torchvision"
+        update-types: ["version-update:semver-major"]
+
+  # Docker dependencies
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "09:00"
+    commit-message:
+      prefix: "docker"
+      include: "scope"
+    reviewers:
+      - "maintainers-team"
+    labels:
+      - "docker"
+      - "security"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "09:00"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    reviewers:
+      - "maintainers-team"
+    labels:
+      - "github-actions"
+      - "security"

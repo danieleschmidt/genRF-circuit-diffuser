@@ -1,0 +1,224 @@
+# Prometheus alerting rules for GenRF Circuit Diffuser
+# These rules define when alerts should be triggered
+
+groups:
+  - name: genrf.circuit.generation
+    rules:
+      # Circuit generation performance alerts
+      - alert: CircuitGenerationHighLatency
+        expr: histogram_quantile(0.95, genrf_circuit_generation_duration_seconds) > 300
+        for: 5m
+        labels:
+          severity: warning
+          component: circuit-generation
+        annotations:
+          summary: "Circuit generation latency is high"
+          description: "95th percentile circuit generation time is {{ $value }}s, above 300s threshold"
+          
+      - alert: CircuitGenerationFailureRate
+        expr: rate(genrf_circuit_generation_failures_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+          component: circuit-generation
+        annotations:
+          summary: "High circuit generation failure rate"
+          description: "Circuit generation failure rate is {{ $value | humanizePercentage }}"
+          
+      - alert: CircuitValidationFailures
+        expr: rate(genrf_circuit_validation_failures_total[10m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          component: validation
+        annotations:
+          summary: "Circuit validation failures detected"
+          description: "Circuit validation failure rate is {{ $value | humanizePercentage }}"
+
+  - name: genrf.ml.models
+    rules:
+      # ML model performance alerts
+      - alert: ModelInferenceSlowdown
+        expr: histogram_quantile(0.90, genrf_model_inference_duration_seconds) > 60
+        for: 3m
+        labels:
+          severity: warning
+          component: ml-models
+        annotations:
+          summary: "ML model inference is slow"
+          description: "90th percentile model inference time is {{ $value }}s"
+          
+      - alert: ModelAccuracyDegradation
+        expr: genrf_model_accuracy_score < 0.85
+        for: 10m
+        labels:
+          severity: critical
+          component: ml-models
+        annotations:
+          summary: "Model accuracy has degraded"
+          description: "Model accuracy is {{ $value }}, below 0.85 threshold"
+          
+      - alert: GPUMemoryHigh
+        expr: genrf_gpu_memory_utilization_percent > 90
+        for: 5m
+        labels:
+          severity: warning
+          component: gpu
+        annotations:
+          summary: "High GPU memory utilization"
+          description: "GPU memory utilization is {{ $value }}%"
+          
+      - alert: ModelLoadFailure
+        expr: increase(genrf_model_load_failures_total[15m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          component: ml-models
+        annotations:
+          summary: "Model loading failures detected"
+          description: "{{ $value }} model load failures in the last 15 minutes"
+
+  - name: genrf.spice.simulation
+    rules:
+      # SPICE simulation alerts
+      - alert: SpiceSimulationTimeout
+        expr: rate(genrf_spice_simulation_timeouts_total[10m]) > 0.02
+        for: 5m
+        labels:
+          severity: warning
+          component: spice-simulation
+        annotations:
+          summary: "SPICE simulation timeouts occurring"
+          description: "SPICE simulation timeout rate is {{ $value | humanizePercentage }}"
+          
+      - alert: SpiceSimulationConvergenceFailures
+        expr: rate(genrf_spice_convergence_failures_total[10m]) > 0.05
+        for: 3m
+        labels:
+          severity: warning
+          component: spice-simulation
+        annotations:
+          summary: "SPICE convergence failures detected"
+          description: "SPICE convergence failure rate is {{ $value | humanizePercentage }}"
+          
+      - alert: SpiceEngineDown
+        expr: up{job="genrf-spice-simulation"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: spice-simulation
+        annotations:
+          summary: "SPICE simulation engine is down"
+          description: "SPICE simulation engine has been down for more than 2 minutes"
+
+  - name: genrf.system.resources
+    rules:
+      # System resource alerts
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is {{ $value }}% on {{ $labels.instance }}"
+          
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is {{ $value }}% on {{ $labels.instance }}"
+          
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_size_bytes - node_filesystem_free_bytes) / node_filesystem_size_bytes * 100 > 90
+        for: 10m
+        labels:
+          severity: critical
+          component: system
+        annotations:
+          summary: "Disk space is running low"
+          description: "Disk usage is {{ $value }}% on {{ $labels.instance }}:{{ $labels.mountpoint }}"
+
+  - name: genrf.application.health
+    rules:
+      # Application health alerts
+      - alert: ApplicationDown
+        expr: up{job="genrf-circuit-diffuser"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: application
+        annotations:
+          summary: "GenRF application is down"
+          description: "GenRF Circuit Diffuser application has been down for more than 1 minute"
+          
+      - alert: HighErrorRate
+        expr: rate(genrf_http_requests_total{status=~"5.."}[5m]) > 0.1
+        for: 3m
+        labels:
+          severity: critical
+          component: application
+        annotations:
+          summary: "High error rate detected"
+          description: "HTTP error rate is {{ $value | humanizePercentage }}"
+          
+      - alert: ResponseTimeHigh
+        expr: histogram_quantile(0.95, genrf_http_request_duration_seconds) > 30
+        for: 5m
+        labels:
+          severity: warning
+          component: application
+        annotations:
+          summary: "High response times detected"
+          description: "95th percentile response time is {{ $value }}s"
+
+  - name: genrf.data.quality
+    rules:
+      # Data quality alerts
+      - alert: CircuitDataCorruption
+        expr: rate(genrf_data_validation_failures_total[15m]) > 0.01
+        for: 5m
+        labels:
+          severity: warning
+          component: data-quality
+        annotations:
+          summary: "Circuit data validation failures"
+          description: "Data validation failure rate is {{ $value | humanizePercentage }}"
+          
+      - alert: ModelArtifactMissing
+        expr: genrf_model_artifacts_missing > 0
+        for: 1m
+        labels:
+          severity: critical
+          component: data-quality
+        annotations:
+          summary: "ML model artifacts are missing"
+          description: "{{ $value }} model artifacts are missing"
+
+  - name: genrf.security
+    rules:
+      # Security-related alerts
+      - alert: UnauthorizedAccess
+        expr: rate(genrf_auth_failures_total[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          component: security
+        annotations:
+          summary: "Unauthorized access attempts detected"
+          description: "Authentication failure rate is {{ $value | humanizePercentage }}"
+          
+      - alert: SuspiciousCircuitGeneration
+        expr: rate(genrf_suspicious_circuit_requests_total[10m]) > 0.01
+        for: 5m
+        labels:
+          severity: warning
+          component: security
+        annotations:
+          summary: "Suspicious circuit generation requests"
+          description: "Suspicious request rate is {{ $value | humanizePercentage }}"
