@@ -1,0 +1,121 @@
+# Development Dockerfile for GenRF Circuit Diffuser
+# Optimized for development with all tools and dependencies
+
+FROM python:3.11-slim as base
+
+# Avoid prompts from apt
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Set working directory
+WORKDIR /workspace
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    # Build essentials
+    build-essential \
+    cmake \
+    git \
+    curl \
+    wget \
+    # SPICE simulation tools
+    ngspice \
+    # Development tools
+    vim \
+    nano \
+    htop \
+    tree \
+    jq \
+    # Graphics and plotting
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libxrender1 \
+    libxext6 \
+    libfontconfig1 \
+    # LaTeX for documentation
+    texlive-latex-base \
+    texlive-latex-recommended \
+    texlive-fonts-recommended \
+    # Clean up
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Install Node.js for documentation tools
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs
+
+# Create non-root user
+RUN groupadd --gid 1000 vscode \
+    && useradd --uid 1000 --gid vscode --shell /bin/bash --create-home vscode
+
+# Install Python development dependencies
+COPY requirements-dev.txt /tmp/
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
+    && pip install --no-cache-dir -r /tmp/requirements-dev.txt
+
+# Install additional development tools
+RUN pip install --no-cache-dir \
+    jupyter \
+    jupyterlab \
+    ipywidgets \
+    plotly \
+    dash \
+    streamlit \
+    black \
+    isort \
+    flake8 \
+    mypy \
+    pytest \
+    pytest-cov \
+    pytest-xdist \
+    pre-commit \
+    sphinx \
+    sphinx-rtd-theme \
+    myst-parser
+
+# Install Node.js tools for documentation
+RUN npm install -g \
+    @mermaid-js/mermaid-cli \
+    markdownlint-cli \
+    prettier
+
+# Set up development environment
+USER vscode
+
+# Configure git for development
+RUN git config --global init.defaultBranch main \
+    && git config --global pull.rebase false \
+    && git config --global core.autocrlf input
+
+# Configure shell
+RUN echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc \
+    && echo 'export PYTHONPATH="/workspace:$PYTHONPATH"' >> ~/.bashrc
+
+# Create directories for development
+RUN mkdir -p /home/vscode/.cache/pip \
+    && mkdir -p /home/vscode/.cache/pre-commit \
+    && mkdir -p /home/vscode/.local/share/jupyter
+
+# Switch back to root for final setup
+USER root
+
+# Set ownership of workspace
+RUN chown -R vscode:vscode /workspace
+
+# Expose ports for development services
+EXPOSE 8000 3000 8888 9090 5432 6379
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD python -c "import sys; sys.exit(0)" || exit 1
+
+# Switch to non-root user
+USER vscode
+
+# Set environment variables
+ENV PYTHONPATH="/workspace"
+ENV GENRF_ENV="development"
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Default command
+CMD ["/bin/bash"]

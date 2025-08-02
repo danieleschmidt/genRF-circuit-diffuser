@@ -1,0 +1,188 @@
+# Alertmanager configuration for GenRF Circuit Diffuser
+global:
+  smtp_smarthost: 'localhost:587'
+  smtp_from: 'genrf-alerts@example.com'
+  smtp_auth_username: 'genrf-alerts@example.com'
+  smtp_auth_password: 'your-email-password'
+  smtp_require_tls: true
+
+# Templates
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+# Routing tree
+route:
+  group_by: ['alertname', 'service']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  receiver: 'web.hook'
+  routes:
+    # Critical alerts - immediate notification
+    - match:
+        severity: critical
+      receiver: 'critical-alerts'
+      group_wait: 10s
+      repeat_interval: 1h
+
+    # API related alerts
+    - match_re:
+        service: genrf-api|ml-inference|spice-simulator
+      receiver: 'api-team'
+      group_interval: 2m
+
+    # Infrastructure alerts
+    - match_re:
+        service: system|docker|redis
+      receiver: 'infrastructure-team'
+      group_interval: 10m
+
+    # Quality alerts
+    - match:
+        service: quality-assurance
+      receiver: 'qa-team'
+      group_interval: 15m
+
+# Inhibition rules
+inhibit_rules:
+  # Inhibit warning alerts if critical alert is firing
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'service', 'instance']
+
+  # Inhibit duplicate alerts from different instances
+  - source_match:
+      alertname: 'GenRFAPIDown'
+    target_match:
+      alertname: 'GenRFHighErrorRate'
+    equal: ['service']
+
+# Notification receivers
+receivers:
+  # Default webhook receiver
+  - name: 'web.hook'
+    webhook_configs:
+      - url: 'http://genrf-api:8000/webhooks/alerts'
+        send_resolved: true
+        http_config:
+          basic_auth:
+            username: 'webhook-user'
+            password: 'webhook-password'
+
+  # Critical alerts - multiple channels
+  - name: 'critical-alerts'
+    email_configs:
+      - to: 'oncall@example.com'
+        subject: '🚨 CRITICAL: {{ .GroupLabels.alertname }}'
+        body: |
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Service: {{ .Labels.service }}
+          Severity: {{ .Labels.severity }}
+          Started: {{ .StartsAt }}
+          {{ end }}
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#alerts-critical'
+        title: '🚨 Critical Alert'
+        text: |
+          {{ range .Alerts }}
+          *{{ .Annotations.summary }}*
+          {{ .Annotations.description }}
+          Service: `{{ .Labels.service }}`
+          {{ end }}
+        color: 'danger'
+        send_resolved: true
+    pagerduty_configs:
+      - routing_key: 'your-pagerduty-integration-key'
+        description: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+
+  # API team notifications
+  - name: 'api-team'
+    email_configs:
+      - to: 'api-team@example.com'
+        subject: 'GenRF API Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Service: {{ .Labels.service }}
+          Severity: {{ .Labels.severity }}
+          {{ end }}
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#genrf-api'
+        title: 'API Alert'
+        text: |
+          {{ range .Alerts }}
+          {{ .Annotations.summary }}
+          Service: `{{ .Labels.service }}`
+          {{ end }}
+        color: '{{ if eq .Status "firing" }}warning{{ else }}good{{ end }}'
+
+  # Infrastructure team notifications
+  - name: 'infrastructure-team'
+    email_configs:
+      - to: 'infra-team@example.com'
+        subject: 'Infrastructure Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Instance: {{ .Labels.instance }}
+          Severity: {{ .Labels.severity }}
+          {{ end }}
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#infrastructure'
+        title: 'Infrastructure Alert'
+        text: |
+          {{ range .Alerts }}
+          {{ .Annotations.summary }}
+          Instance: `{{ .Labels.instance }}`
+          {{ end }}
+
+  # QA team notifications
+  - name: 'qa-team'
+    email_configs:
+      - to: 'qa-team@example.com'
+        subject: 'Quality Alert: {{ .GroupLabels.alertname }}'
+        body: |
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          Service: {{ .Labels.service }}
+          {{ end }}
+    slack_configs:
+      - api_url: 'https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK'
+        channel: '#quality-assurance'
+        title: 'Quality Alert'
+        text: |
+          {{ range .Alerts }}
+          {{ .Annotations.summary }}
+          {{ end }}
+        color: 'warning'
+
+# Time intervals for muting alerts
+time_intervals:
+  - name: weekends
+    time_intervals:
+      - weekdays: ['saturday', 'sunday']
+
+  - name: maintenance-window
+    time_intervals:
+      - times:
+          - start_time: '02:00'
+            end_time: '04:00'
+        weekdays: ['sunday']
+        months: ['1:12']
+
+# Mute rules
+mute_time_intervals:
+  - name: weekend-maintenance
+    time_intervals:
+      - weekends
+      - maintenance-window

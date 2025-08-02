@@ -1,0 +1,244 @@
+# Alerting rules for GenRF Circuit Diffuser
+groups:
+  - name: genrf_api_alerts
+    rules:
+      # API availability
+      - alert: GenRFAPIDown
+        expr: up{job="genrf-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: genrf-api
+        annotations:
+          summary: "GenRF API is down"
+          description: "GenRF API has been down for more than 1 minute"
+
+      # High error rate
+      - alert: GenRFHighErrorRate
+        expr: rate(genrf_http_requests_total{status=~"5.."}[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: warning
+          service: genrf-api
+        annotations:
+          summary: "GenRF API high error rate"
+          description: "GenRF API error rate is {{ $value }} errors per second"
+
+      # High response time
+      - alert: GenRFHighLatency
+        expr: histogram_quantile(0.95, rate(genrf_http_request_duration_seconds_bucket[5m])) > 30
+        for: 5m
+        labels:
+          severity: warning
+          service: genrf-api
+        annotations:
+          summary: "GenRF API high latency"
+          description: "GenRF API 95th percentile latency is {{ $value }}s"
+
+      # Circuit generation failures
+      - alert: CircuitGenerationFailures
+        expr: rate(genrf_circuit_generation_failures_total[5m]) > 0.05
+        for: 3m
+        labels:
+          severity: warning
+          service: circuit-generator
+        annotations:
+          summary: "High circuit generation failure rate"
+          description: "Circuit generation failure rate is {{ $value }} failures per second"
+
+  - name: spice_simulation_alerts
+    rules:
+      # SPICE simulation timeouts
+      - alert: SPICESimulationTimeouts
+        expr: rate(genrf_spice_simulation_timeouts_total[5m]) > 0.02
+        for: 2m
+        labels:
+          severity: warning
+          service: spice-simulator
+        annotations:
+          summary: "High SPICE simulation timeout rate"
+          description: "SPICE simulation timeout rate is {{ $value }} timeouts per second"
+
+      # SPICE simulation queue length
+      - alert: SPICEQueueBacklog
+        expr: genrf_spice_simulation_queue_length > 50
+        for: 5m
+        labels:
+          severity: warning
+          service: spice-simulator
+        annotations:
+          summary: "SPICE simulation queue backlog"
+          description: "SPICE simulation queue has {{ $value }} pending simulations"
+
+      # SPICE engine unavailable
+      - alert: SPICEEngineUnavailable
+        expr: genrf_spice_engine_available == 0
+        for: 30s
+        labels:
+          severity: critical
+          service: spice-simulator
+        annotations:
+          summary: "SPICE engine unavailable"
+          description: "SPICE simulation engine is not responding"
+
+  - name: ml_model_alerts
+    rules:
+      # Model inference failures
+      - alert: ModelInferenceFailures
+        expr: rate(genrf_model_inference_failures_total[5m]) > 0.01
+        for: 2m
+        labels:
+          severity: warning
+          service: ml-inference
+        annotations:
+          summary: "High ML model inference failure rate"
+          description: "Model inference failure rate is {{ $value }} failures per second"
+
+      # Model loading issues
+      - alert: ModelLoadingFailure
+        expr: genrf_model_loaded == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: ml-inference
+        annotations:
+          summary: "ML model failed to load"
+          description: "Required ML model is not loaded and available"
+
+      # High inference latency
+      - alert: ModelInferenceHighLatency
+        expr: histogram_quantile(0.95, rate(genrf_model_inference_duration_seconds_bucket[5m])) > 10
+        for: 3m
+        labels:
+          severity: warning
+          service: ml-inference
+        annotations:
+          summary: "High ML model inference latency"
+          description: "Model inference 95th percentile latency is {{ $value }}s"
+
+  - name: resource_alerts
+    rules:
+      # High CPU usage
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is {{ $value }}% on instance {{ $labels.instance }}"
+
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is {{ $value }}% on instance {{ $labels.instance }}"
+
+      # Low disk space
+      - alert: LowDiskSpace
+        expr: (1 - (node_filesystem_avail_bytes{fstype!~"tmpfs|fuse.lxcfs"} / node_filesystem_size_bytes{fstype!~"tmpfs|fuse.lxcfs"})) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "Low disk space"
+          description: "Disk usage is {{ $value }}% on {{ $labels.mountpoint }}"
+
+      # Container high CPU
+      - alert: ContainerHighCPU
+        expr: (rate(container_cpu_usage_seconds_total{name!=""}[5m]) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: docker
+        annotations:
+          summary: "Container high CPU usage"
+          description: "Container {{ $labels.name }} CPU usage is {{ $value }}%"
+
+      # Container high memory
+      - alert: ContainerHighMemory
+        expr: (container_memory_usage_bytes{name!=""} / container_spec_memory_limit_bytes{name!=""}) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+          service: docker
+        annotations:
+          summary: "Container high memory usage"
+          description: "Container {{ $labels.name }} memory usage is {{ $value }}%"
+
+  - name: database_alerts
+    rules:
+      # Redis unavailable
+      - alert: RedisDown
+        expr: up{job="redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: redis
+        annotations:
+          summary: "Redis is down"
+          description: "Redis instance has been down for more than 1 minute"
+
+      # Redis high memory usage
+      - alert: RedisHighMemoryUsage
+        expr: (redis_memory_used_bytes / redis_memory_max_bytes) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          service: redis
+        annotations:
+          summary: "Redis high memory usage"
+          description: "Redis memory usage is {{ $value }}%"
+
+      # Redis connection issues
+      - alert: RedisHighConnections
+        expr: redis_connected_clients > 100
+        for: 5m
+        labels:
+          severity: warning
+          service: redis
+        annotations:
+          summary: "Redis high connection count"
+          description: "Redis has {{ $value }} connected clients"
+
+  - name: circuit_quality_alerts
+    rules:
+      # Low circuit quality scores
+      - alert: LowCircuitQuality
+        expr: avg_over_time(genrf_circuit_quality_score[10m]) < 0.7
+        for: 5m
+        labels:
+          severity: warning
+          service: quality-assurance
+        annotations:
+          summary: "Low average circuit quality"
+          description: "Average circuit quality score is {{ $value }}"
+
+      # High specification violation rate
+      - alert: HighSpecViolationRate
+        expr: rate(genrf_spec_violations_total[5m]) > 0.1
+        for: 3m
+        labels:
+          severity: warning
+          service: quality-assurance
+        annotations:
+          summary: "High specification violation rate"
+          description: "Specification violation rate is {{ $value }} violations per second"
+
+      # Model convergence issues
+      - alert: ModelConvergenceIssues
+        expr: rate(genrf_model_convergence_failures_total[5m]) > 0.02
+        for: 2m
+        labels:
+          severity: warning
+          service: optimization
+        annotations:
+          summary: "High model convergence failure rate"
+          description: "Model convergence failure rate is {{ $value }} failures per second"

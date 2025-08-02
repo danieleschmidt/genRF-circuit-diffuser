@@ -1,0 +1,485 @@
+# Performance benchmarking workflow for GenRF Circuit Diffuser
+# This file should be manually created at .github/workflows/benchmark.yml
+
+name: Performance Benchmarks
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+    types: [ opened, synchronize, labeled ]
+  schedule:
+    # Run benchmarks weekly on Sundays at 4 AM UTC
+    - cron: '0 4 * * 0'
+  workflow_dispatch:
+    inputs:
+      run_full_suite:
+        description: 'Run full benchmark suite (including slow tests)'
+        required: false
+        type: boolean
+        default: false
+      circuit_types:
+        description: 'Circuit types to benchmark (comma-separated)'
+        required: false
+        type: string
+        default: 'LNA,Mixer,VCO'
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  setup-benchmark:
+    name: Setup Benchmark Environment
+    runs-on: ubuntu-latest
+    outputs:
+      run_benchmarks: ${{ steps.check.outputs.run_benchmarks }}
+      circuit_types: ${{ steps.check.outputs.circuit_types }}
+      full_suite: ${{ steps.check.outputs.full_suite }}
+    steps:
+      - name: Check if benchmarks should run
+        id: check
+        run: |
+          RUN_BENCHMARKS="false"
+          CIRCUIT_TYPES="LNA,Mixer,VCO"
+          FULL_SUITE="false"
+          
+          # Always run on main branch
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            RUN_BENCHMARKS="true"
+          fi
+          
+          # Run on schedule
+          if [ "${{ github.event_name }}" == "schedule" ]; then
+            RUN_BENCHMARKS="true"
+            FULL_SUITE="true"
+          fi
+          
+          # Run on manual dispatch
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            RUN_BENCHMARKS="true"
+            FULL_SUITE="${{ github.event.inputs.run_full_suite }}"
+            if [ -n "${{ github.event.inputs.circuit_types }}" ]; then
+              CIRCUIT_TYPES="${{ github.event.inputs.circuit_types }}"
+            fi
+          fi
+          
+          # Run on PR with benchmark label
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            if echo '${{ toJSON(github.event.pull_request.labels.*.name) }}' | grep -q "benchmark"; then
+              RUN_BENCHMARKS="true"
+            fi
+          fi
+          
+          echo "run_benchmarks=$RUN_BENCHMARKS" >> $GITHUB_OUTPUT
+          echo "circuit_types=$CIRCUIT_TYPES" >> $GITHUB_OUTPUT
+          echo "full_suite=$FULL_SUITE" >> $GITHUB_OUTPUT
+
+  circuit-generation-benchmarks:
+    name: Circuit Generation Benchmarks
+    runs-on: ubuntu-latest
+    needs: setup-benchmark
+    if: needs.setup-benchmark.outputs.run_benchmarks == 'true'
+    strategy:
+      matrix:
+        circuit_type: ${{ fromJSON(format('["{0}"]', needs.setup-benchmark.outputs.circuit_types)) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ngspice time
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+          pip install pytest-benchmark memory-profiler psutil
+
+      - name: Run circuit generation benchmarks
+        run: |
+          # Create benchmark configuration
+          cat > benchmark_config.json << EOF
+          {
+            "circuit_type": "${{ matrix.circuit_type }}",
+            "iterations": ${{ needs.setup-benchmark.outputs.full_suite == 'true' && 100 || 10 }},
+            "timeout": 300,
+            "metrics": ["time", "memory", "quality"]
+          }
+          EOF
+          
+          # Run benchmarks
+          python -m pytest benchmarks/test_circuit_generation.py::test_${{ matrix.circuit_type }}_generation \
+            --benchmark-json=benchmark_results_${{ matrix.circuit_type }}.json \
+            --benchmark-warmup=5 \
+            --benchmark-min-rounds=10 \
+            -v
+
+      - name: Analyze results
+        run: |
+          python scripts/analyze_benchmarks.py \
+            --input benchmark_results_${{ matrix.circuit_type }}.json \
+            --output analysis_${{ matrix.circuit_type }}.json \
+            --circuit-type ${{ matrix.circuit_type }}
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v3
+        with:
+          name: circuit-benchmarks-${{ matrix.circuit_type }}
+          path: |
+            benchmark_results_${{ matrix.circuit_type }}.json
+            analysis_${{ matrix.circuit_type }}.json
+
+  spice-simulation-benchmarks:
+    name: SPICE Simulation Benchmarks
+    runs-on: ubuntu-latest
+    needs: setup-benchmark
+    if: needs.setup-benchmark.outputs.run_benchmarks == 'true'
+    strategy:
+      matrix:
+        spice_engine: [ngspice, xyce]
+        complexity: [simple, medium, complex]
+        exclude:
+          # Skip XYCE for now as it requires special installation
+          - spice_engine: xyce
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install SPICE engines
+        run: |
+          sudo apt-get update
+          if [ "${{ matrix.spice_engine }}" == "ngspice" ]; then
+            sudo apt-get install -y ngspice
+          fi
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+          pip install pytest-benchmark
+
+      - name: Generate test circuits
+        run: |
+          python scripts/generate_test_circuits.py \
+            --complexity ${{ matrix.complexity }} \
+            --count ${{ needs.setup-benchmark.outputs.full_suite == 'true' && 50 || 5 }} \
+            --output test_circuits_${{ matrix.complexity }}/
+
+      - name: Run SPICE benchmarks
+        run: |
+          python -m pytest benchmarks/test_spice_simulation.py \
+            --benchmark-json=spice_benchmark_${{ matrix.spice_engine }}_${{ matrix.complexity }}.json \
+            --spice-engine ${{ matrix.spice_engine }} \
+            --complexity ${{ matrix.complexity }} \
+            -v
+
+      - name: Upload SPICE benchmark results
+        uses: actions/upload-artifact@v3
+        with:
+          name: spice-benchmarks-${{ matrix.spice_engine }}-${{ matrix.complexity }}
+          path: spice_benchmark_${{ matrix.spice_engine }}_${{ matrix.complexity }}.json
+
+  ml-model-benchmarks:
+    name: ML Model Benchmarks
+    runs-on: ubuntu-latest
+    needs: setup-benchmark
+    if: needs.setup-benchmark.outputs.run_benchmarks == 'true'
+    strategy:
+      matrix:
+        model_type: [cyclegan, diffusion, hybrid]
+        batch_size: [1, 8, 32]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+          pip install pytest-benchmark torch torchvision
+
+      - name: Download test models
+        run: |
+          # Download or create lightweight test models
+          python scripts/prepare_test_models.py \
+            --model-type ${{ matrix.model_type }} \
+            --output models/test/
+
+      - name: Run ML model benchmarks
+        run: |
+          python -m pytest benchmarks/test_ml_inference.py \
+            --benchmark-json=ml_benchmark_${{ matrix.model_type }}_batch${{ matrix.batch_size }}.json \
+            --model-type ${{ matrix.model_type }} \
+            --batch-size ${{ matrix.batch_size }} \
+            -v
+
+      - name: Profile memory usage
+        run: |
+          python -m memory_profiler scripts/profile_model_memory.py \
+            --model-type ${{ matrix.model_type }} \
+            --batch-size ${{ matrix.batch_size }} \
+            > memory_profile_${{ matrix.model_type }}_batch${{ matrix.batch_size }}.txt
+
+      - name: Upload ML benchmark results
+        uses: actions/upload-artifact@v3
+        with:
+          name: ml-benchmarks-${{ matrix.model_type }}-batch${{ matrix.batch_size }}
+          path: |
+            ml_benchmark_${{ matrix.model_type }}_batch${{ matrix.batch_size }}.json
+            memory_profile_${{ matrix.model_type }}_batch${{ matrix.batch_size }}.txt
+
+  scalability-benchmarks:
+    name: Scalability Benchmarks
+    runs-on: ubuntu-latest
+    needs: setup-benchmark
+    if: needs.setup-benchmark.outputs.run_benchmarks == 'true' && needs.setup-benchmark.outputs.full_suite == 'true'
+    strategy:
+      matrix:
+        concurrent_jobs: [1, 2, 4, 8]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+          pip install pytest-benchmark pytest-xdist
+
+      - name: Run scalability benchmarks
+        run: |
+          python -m pytest benchmarks/test_scalability.py \
+            --benchmark-json=scalability_benchmark_${{ matrix.concurrent_jobs }}jobs.json \
+            --concurrent-jobs ${{ matrix.concurrent_jobs }} \
+            -v
+
+      - name: Monitor system resources
+        run: |
+          python scripts/monitor_resources.py \
+            --duration 60 \
+            --output resource_usage_${{ matrix.concurrent_jobs }}jobs.json &
+          
+          # Run load test
+          python scripts/load_test.py \
+            --concurrent-jobs ${{ matrix.concurrent_jobs }} \
+            --duration 60
+          
+          # Stop monitoring
+          pkill -f monitor_resources.py
+
+      - name: Upload scalability results
+        uses: actions/upload-artifact@v3
+        with:
+          name: scalability-benchmarks-${{ matrix.concurrent_jobs }}jobs
+          path: |
+            scalability_benchmark_${{ matrix.concurrent_jobs }}jobs.json
+            resource_usage_${{ matrix.concurrent_jobs }}jobs.json
+
+  regression-analysis:
+    name: Performance Regression Analysis
+    runs-on: ubuntu-latest
+    needs: [circuit-generation-benchmarks, spice-simulation-benchmarks, ml-model-benchmarks]
+    if: always() && needs.setup-benchmark.outputs.run_benchmarks == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download all benchmark results
+        uses: actions/download-artifact@v3
+        with:
+          path: benchmark_results/
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install analysis tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas matplotlib seaborn plotly
+
+      - name: Download historical benchmarks
+        run: |
+          # Download previous benchmark results from GitHub releases or artifacts
+          python scripts/download_historical_benchmarks.py \
+            --output historical_benchmarks/
+
+      - name: Perform regression analysis
+        run: |
+          python scripts/regression_analysis.py \
+            --current benchmark_results/ \
+            --historical historical_benchmarks/ \
+            --output regression_report.json
+
+      - name: Generate performance report
+        run: |
+          python scripts/generate_performance_report.py \
+            --input regression_report.json \
+            --output performance_report.html \
+            --format html
+
+      - name: Check for performance regressions
+        id: regression_check
+        run: |
+          python scripts/check_regressions.py \
+            --input regression_report.json \
+            --threshold 10.0 \
+            --output regression_status.txt
+          
+          if [ -f regression_status.txt ]; then
+            echo "regressions_found=true" >> $GITHUB_OUTPUT
+            echo "::warning::Performance regressions detected"
+          else
+            echo "regressions_found=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload performance report
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-report
+          path: |
+            performance_report.html
+            regression_report.json
+            regression_status.txt
+
+      - name: Comment PR with performance summary
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            
+            let summary = '# Performance Benchmark Summary\n\n';
+            
+            if ('${{ steps.regression_check.outputs.regressions_found }}' === 'true') {
+              summary += '⚠️ **Performance regressions detected!**\n\n';
+              
+              if (fs.existsSync('regression_status.txt')) {
+                const regressions = fs.readFileSync('regression_status.txt', 'utf8');
+                summary += '## Detected Regressions\n\n```\n' + regressions + '\n```\n\n';
+              }
+            } else {
+              summary += '✅ No significant performance regressions detected.\n\n';
+            }
+            
+            summary += '## Benchmark Results\n\n';
+            summary += '- Circuit Generation: Completed\n';
+            summary += '- SPICE Simulation: Completed\n';
+            summary += '- ML Model Inference: Completed\n\n';
+            summary += '[View detailed performance report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\n';
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });
+
+  benchmark-summary:
+    name: Benchmark Summary
+    runs-on: ubuntu-latest
+    needs: [circuit-generation-benchmarks, spice-simulation-benchmarks, ml-model-benchmarks, scalability-benchmarks, regression-analysis]
+    if: always() && needs.setup-benchmark.outputs.run_benchmarks == 'true'
+    steps:
+      - name: Download all results
+        uses: actions/download-artifact@v3
+        with:
+          path: all_results/
+
+      - name: Generate summary dashboard
+        run: |
+          # Create a simple HTML dashboard
+          cat > benchmark_dashboard.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+              <title>GenRF Benchmark Dashboard</title>
+              <style>
+                  body { font-family: Arial, sans-serif; margin: 20px; }
+                  .metric { background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px; }
+                  .success { border-left: 5px solid #4CAF50; }
+                  .warning { border-left: 5px solid #FF9800; }
+                  .error { border-left: 5px solid #F44336; }
+              </style>
+          </head>
+          <body>
+              <h1>GenRF Performance Benchmark Results</h1>
+              <p>Generated: $(date)</p>
+              
+              <h2>Summary</h2>
+              <div class="metric success">
+                  <strong>Overall Status:</strong> 
+                  ${{ needs.regression-analysis.outputs.regressions_found == 'true' && 'Regressions Detected' || 'All Tests Passed' }}
+              </div>
+              
+              <h2>Benchmark Categories</h2>
+              <div class="metric">
+                  <strong>Circuit Generation:</strong> ${{ needs.circuit-generation-benchmarks.result }}
+              </div>
+              <div class="metric">
+                  <strong>SPICE Simulation:</strong> ${{ needs.spice-simulation-benchmarks.result }}
+              </div>
+              <div class="metric">
+                  <strong>ML Model Inference:</strong> ${{ needs.ml-model-benchmarks.result }}
+              </div>
+              <div class="metric">
+                  <strong>Scalability:</strong> ${{ needs.scalability-benchmarks.result }}
+              </div>
+              
+              <h2>Links</h2>
+              <ul>
+                  <li><a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}">Full Workflow Results</a></li>
+                  <li><a href="../performance_report.html">Detailed Performance Report</a></li>
+              </ul>
+          </body>
+          </html>
+          EOF
+
+      - name: Upload benchmark dashboard
+        uses: actions/upload-artifact@v3
+        with:
+          name: benchmark-dashboard
+          path: benchmark_dashboard.html
+
+      - name: Store benchmark results
+        if: github.ref == 'refs/heads/main'
+        run: |
+          # Store results for historical comparison
+          DATE=$(date +%Y%m%d_%H%M%S)
+          COMMIT_SHA="${{ github.sha }}"
+          
+          # Create results archive
+          tar -czf benchmark_results_${DATE}_${COMMIT_SHA:0:7}.tar.gz all_results/
+          
+          # This would typically upload to a storage service
+          echo "Benchmark results archived: benchmark_results_${DATE}_${COMMIT_SHA:0:7}.tar.gz"

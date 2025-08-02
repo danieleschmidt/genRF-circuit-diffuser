@@ -1,0 +1,70 @@
+# Code owners for GenRF Circuit Diffuser
+
+# Default owners for everything in the repo
+* @danieleschmidt
+
+# Core application code
+/genrf/ @danieleschmidt
+/genrf/core/ @danieleschmidt
+/genrf/models/ @danieleschmidt
+
+# Circuit generation and AI models
+/genrf/generation/ @danieleschmidt
+/genrf/optimization/ @danieleschmidt
+
+# SPICE integration
+/genrf/simulation/ @danieleschmidt
+/genrf/engines/ @danieleschmidt
+
+# API and web interface
+/genrf/api/ @danieleschmidt
+/genrf/web/ @danieleschmidt
+
+# Documentation
+/docs/ @danieleschmidt
+README.md @danieleschmidt
+*.md @danieleschmidt
+
+# Configuration files
+pyproject.toml @danieleschmidt
+requirements*.txt @danieleschmidt
+setup.py @danieleschmidt
+setup.cfg @danieleschmidt
+
+# CI/CD and automation
+.github/ @danieleschmidt
+scripts/ @danieleschmidt
+Dockerfile* @danieleschmidt
+docker-compose*.yml @danieleschmidt
+
+# Testing
+/tests/ @danieleschmidt
+/benchmarks/ @danieleschmidt
+pytest.ini @danieleschmidt
+.coveragerc @danieleschmidt
+
+# Development environment
+.vscode/ @danieleschmidt
+.devcontainer/ @danieleschmidt
+.env.example @danieleschmidt
+.gitignore @danieleschmidt
+.editorconfig @danieleschmidt
+.pre-commit-config.yaml @danieleschmidt
+
+# Monitoring and observability
+/monitoring/ @danieleschmidt
+/grafana/ @danieleschmidt
+
+# Security
+SECURITY.md @danieleschmidt
+.github/security/ @danieleschmidt
+
+# Legal and licensing
+LICENSE @danieleschmidt
+COPYRIGHT @danieleschmidt
+
+# Project management
+PROJECT_CHARTER.md @danieleschmidt
+ARCHITECTURE.md @danieleschmidt
+CHANGELOG.md @danieleschmidt
+CONTRIBUTING.md @danieleschmidt

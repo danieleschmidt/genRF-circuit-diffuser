@@ -1,0 +1,122 @@
+{
+  "name": "GenRF Circuit Diffuser Development",
+  "dockerFile": "../Dockerfile.dev",
+  "context": "..",
+  "workspaceFolder": "/workspace",
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "installOhMyZsh": true,
+      "upgradePackages": true,
+      "username": "vscode",
+      "uid": "1000",
+      "gid": "1000"
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.11",
+      "installTools": true
+    },
+    "ghcr.io/devcontainers/features/git:1": {
+      "ppa": true,
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "enableNonRootDocker": "true"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {
+      "version": "latest"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.flake8",
+        "ms-python.mypy-type-checker",
+        "ms-python.black-formatter",
+        "ms-python.isort",
+        "njpwerner.autodocstring",
+        "ms-toolsai.jupyter",
+        "redhat.vscode-yaml",
+        "yzhang.markdown-all-in-one",
+        "streetsidesoftware.code-spell-checker",
+        "ms-vscode.vscode-json",
+        "eamodio.gitlens",
+        "github.vscode-pull-request-github",
+        "ms-vscode.vscode-github-actions"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.linting.enabled": true,
+        "python.linting.pylintEnabled": true,
+        "python.linting.flake8Enabled": true,
+        "python.formatting.provider": "black",
+        "editor.formatOnSave": true,
+        "python.testing.pytestEnabled": true,
+        "python.testing.pytestArgs": ["tests"],
+        "terminal.integrated.shell.linux": "/bin/zsh"
+      }
+    }
+  },
+  "forwardPorts": [
+    8000,
+    3000,
+    9090,
+    5432,
+    6379
+  ],
+  "portsAttributes": {
+    "8000": {
+      "label": "GenRF API",
+      "description": "Main application API server"
+    },
+    "3000": {
+      "label": "Web Dashboard",
+      "description": "Grafana dashboard for design exploration"
+    },
+    "9090": {
+      "label": "Prometheus",
+      "description": "Metrics collection"
+    },
+    "5432": {
+      "label": "PostgreSQL",
+      "description": "Database server"
+    },
+    "6379": {
+      "label": "Redis",
+      "description": "Cache and session store"
+    }
+  },
+  "postCreateCommand": [
+    "bash",
+    "-c",
+    "pip install -e .[dev] && pre-commit install && echo 'Development environment ready!'"
+  ],
+  "postStartCommand": [
+    "bash",
+    "-c",
+    "git config --global --add safe.directory /workspace"
+  ],
+  "mounts": [
+    "source=${localWorkspaceFolder}/.env,target=/workspace/.env,type=bind,consistency=cached",
+    "source=genrf-models,target=/workspace/models,type=volume",
+    "source=genrf-cache,target=/workspace/.cache,type=volume"
+  ],
+  "remoteEnv": {
+    "GENRF_ENV": "development",
+    "PYTHONPATH": "/workspace",
+    "TORCH_DEVICE": "cpu"
+  },
+  "containerEnv": {
+    "TZ": "UTC",
+    "DEBIAN_FRONTEND": "noninteractive"
+  },
+  "privileged": false,
+  "init": true,
+  "capAdd": [],
+  "securityOpt": [],
+  "remoteUser": "vscode",
+  "updateRemoteUserUID": true,
+  "shutdownAction": "stopContainer"
+}

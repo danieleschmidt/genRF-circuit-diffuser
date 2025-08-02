@@ -1,0 +1,91 @@
+# Prometheus configuration for GenRF Circuit Diffuser
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    cluster: 'genrf-cluster'
+    environment: 'development'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+# Rules files
+rule_files:
+  - "alerts.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 30s
+
+  # GenRF API application metrics
+  - job_name: 'genrf-api'
+    static_configs:
+      - targets: ['genrf-api:8000']
+    metrics_path: '/metrics'
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    scheme: http
+    params:
+      module: [http_2xx]
+
+  # Node Exporter - system metrics
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 30s
+
+  # cAdvisor - container metrics
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+    scrape_interval: 30s
+
+  # Redis metrics
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 30s
+
+  # SPICE simulation metrics (custom exporter)
+  - job_name: 'spice-metrics'
+    static_configs:
+      - targets: ['genrf-api:8000']
+    metrics_path: '/metrics/spice'
+    scrape_interval: 60s
+    scrape_timeout: 30s
+
+  # Model inference metrics
+  - job_name: 'ml-metrics'
+    static_configs:
+      - targets: ['genrf-api:8000']
+    metrics_path: '/metrics/ml'
+    scrape_interval: 30s
+
+  # Circuit generation pipeline metrics
+  - job_name: 'pipeline-metrics'
+    static_configs:
+      - targets: ['genrf-api:8000']
+    metrics_path: '/metrics/pipeline'
+    scrape_interval: 15s
+
+# Remote write configuration (for long-term storage)
+# remote_write:
+#   - url: "https://prometheus-remote-write-endpoint"
+#     basic_auth:
+#       username: "your-username"
+#       password: "your-password"
+
+# Remote read configuration (for long-term storage)
+# remote_read:
+#   - url: "https://prometheus-remote-read-endpoint"
+#     basic_auth:
+#       username: "your-username"
+#       password: "your-password"
