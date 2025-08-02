@@ -1,0 +1,324 @@
+# Security scanning workflow for GenRF Circuit Diffuser
+# This file should be manually created at .github/workflows/security.yml
+
+name: Security
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run weekly security scans on Mondays at 3 AM UTC
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  codeql-analysis:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'python' ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          config-file: ./.github/codeql/codeql-config.yml
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{matrix.language}}"
+
+  dependency-scan:
+    name: Dependency Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install safety bandit semgrep
+          pip install -r requirements.txt
+
+      - name: Run Safety check
+        run: |
+          safety check --json --output safety-report.json || true
+          safety check
+
+      - name: Run Bandit security scan
+        run: |
+          bandit -r genrf/ -f json -o bandit-report.json || true
+          bandit -r genrf/ -ll
+
+      - name: Run Semgrep
+        run: |
+          semgrep --config=auto --json --output=semgrep-report.json genrf/ || true
+          semgrep --config=auto genrf/
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: security-reports
+          path: |
+            safety-report.json
+            bandit-report.json
+            semgrep-report.json
+
+  secret-scan:
+    name: Secret Detection
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run GitLeaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
+      - name: Run TruffleHog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+          extra_args: --debug --only-verified
+
+  license-compliance:
+    name: License Compliance Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install pip-licenses
+        run: |
+          python -m pip install --upgrade pip
+          pip install pip-licenses
+          pip install -r requirements.txt
+
+      - name: Check licenses
+        run: |
+          pip-licenses --format json --output-file licenses.json
+          pip-licenses --fail-on "GPL;AGPL;LGPL"
+
+      - name: Upload license report
+        uses: actions/upload-artifact@v3
+        with:
+          name: license-report
+          path: licenses.json
+
+  sbom-generation:
+    name: Generate SBOM
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install cyclonedx-bom
+          pip install -r requirements.txt
+
+      - name: Generate SBOM
+        run: |
+          cyclonedx-py -o sbom.json
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v3
+        with:
+          name: sbom
+          path: sbom.json
+
+  container-security:
+    name: Container Security Scan
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build -t genrf-security-scan:latest .
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'genrf-security-scan:latest'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Run Grype vulnerability scanner
+        uses: anchore/scan-action@v3
+        with:
+          image: 'genrf-security-scan:latest'
+          fail-build: false
+          severity-cutoff: high
+
+  security-policy-check:
+    name: Security Policy Compliance
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check SECURITY.md exists
+        run: |
+          if [ ! -f SECURITY.md ]; then
+            echo "SECURITY.md file is missing"
+            exit 1
+          fi
+
+      - name: Validate security policy
+        run: |
+          # Check if security policy contains required sections
+          grep -q "Reporting Security Issues" SECURITY.md
+          grep -q "Security Updates" SECURITY.md
+          grep -q "Supported Versions" SECURITY.md
+
+  security-summary:
+    name: Security Summary
+    runs-on: ubuntu-latest
+    needs: [codeql-analysis, dependency-scan, secret-scan, license-compliance, sbom-generation, container-security, security-policy-check]
+    if: always()
+    steps:
+      - name: Download all security reports
+        uses: actions/download-artifact@v3
+
+      - name: Generate security summary
+        run: |
+          echo "# Security Scan Summary" > security-summary.md
+          echo "" >> security-summary.md
+          echo "## Scan Results" >> security-summary.md
+          echo "" >> security-summary.md
+          
+          if [ "${{ needs.codeql-analysis.result }}" == "success" ]; then
+            echo "✅ CodeQL Analysis: Passed" >> security-summary.md
+          else
+            echo "❌ CodeQL Analysis: Failed" >> security-summary.md
+          fi
+          
+          if [ "${{ needs.dependency-scan.result }}" == "success" ]; then
+            echo "✅ Dependency Scan: Passed" >> security-summary.md
+          else
+            echo "❌ Dependency Scan: Failed" >> security-summary.md
+          fi
+          
+          if [ "${{ needs.secret-scan.result }}" == "success" ]; then
+            echo "✅ Secret Detection: Passed" >> security-summary.md
+          else
+            echo "❌ Secret Detection: Failed" >> security-summary.md
+          fi
+          
+          if [ "${{ needs.container-security.result }}" == "success" ]; then
+            echo "✅ Container Security: Passed" >> security-summary.md
+          else
+            echo "❌ Container Security: Failed" >> security-summary.md
+          fi
+
+      - name: Comment PR with security summary
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('security-summary.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });
+
+  security-notifications:
+    name: Security Notifications
+    runs-on: ubuntu-latest
+    needs: [codeql-analysis, dependency-scan, secret-scan, container-security]
+    if: failure() && github.ref == 'refs/heads/main'
+    steps:
+      - name: Send security alert
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            
+            await github.rest.issues.create({
+              owner,
+              repo,
+              title: '🚨 Security Alert: Failed Security Scan',
+              body: `
+                # Security Scan Failure
+                
+                One or more security scans have failed in the main branch.
+                
+                **Workflow Run**: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+                
+                Please investigate and address the security issues immediately.
+                
+                **Failed Jobs**:
+                - CodeQL: ${{ needs.codeql-analysis.result }}
+                - Dependency Scan: ${{ needs.dependency-scan.result }}
+                - Secret Scan: ${{ needs.secret-scan.result }}
+                - Container Security: ${{ needs.container-security.result }}
+              `,
+              labels: ['security', 'critical', 'bug']
+            });

@@ -1,0 +1,425 @@
+{
+  "project": {
+    "name": "GenRF Circuit Diffuser",
+    "description": "Cycle-GAN & diffusion generator for analog/RF circuits with SPICE-in-the-loop optimization",
+    "repository": "danieleschmidt/genRF-circuit-diffuser",
+    "license": "MIT",
+    "created": "2025-01-15",
+    "version": "1.0.0"
+  },
+  "metrics": {
+    "development": {
+      "code_quality": {
+        "test_coverage": {
+          "target": 85,
+          "current": 0,
+          "trend": "stable",
+          "last_updated": "2025-01-15"
+        },
+        "code_complexity": {
+          "target": "< 10",
+          "current": 0,
+          "measurement": "cyclomatic_complexity",
+          "last_updated": "2025-01-15"
+        },
+        "documentation_coverage": {
+          "target": 90,
+          "current": 0,
+          "measurement": "percentage_documented",
+          "last_updated": "2025-01-15"
+        },
+        "security_vulnerabilities": {
+          "target": 0,
+          "current": 0,
+          "severity_breakdown": {
+            "critical": 0,
+            "high": 0,
+            "medium": 0,
+            "low": 0
+          },
+          "last_updated": "2025-01-15"
+        }
+      },
+      "performance": {
+        "circuit_generation_time": {
+          "target": "< 30s",
+          "current": 0,
+          "unit": "seconds",
+          "measurement": "95th_percentile",
+          "last_updated": "2025-01-15"
+        },
+        "spice_simulation_time": {
+          "target": "< 60s",
+          "current": 0,
+          "unit": "seconds",
+          "measurement": "average",
+          "last_updated": "2025-01-15"
+        },
+        "api_response_time": {
+          "target": "< 5s",
+          "current": 0,
+          "unit": "seconds",
+          "measurement": "95th_percentile",
+          "last_updated": "2025-01-15"
+        },
+        "memory_usage": {
+          "target": "< 2GB",
+          "current": 0,
+          "unit": "GB",
+          "measurement": "peak_usage",
+          "last_updated": "2025-01-15"
+        }
+      },
+      "reliability": {
+        "uptime": {
+          "target": 99.9,
+          "current": 0,
+          "unit": "percentage",
+          "measurement": "monthly",
+          "last_updated": "2025-01-15"
+        },
+        "circuit_generation_success_rate": {
+          "target": 95,
+          "current": 0,
+          "unit": "percentage",
+          "measurement": "successful_generations",
+          "last_updated": "2025-01-15"
+        },
+        "spice_simulation_success_rate": {
+          "target": 98,
+          "current": 0,
+          "unit": "percentage",
+          "measurement": "successful_simulations",
+          "last_updated": "2025-01-15"
+        }
+      }
+    },
+    "business": {
+      "adoption": {
+        "github_stars": {
+          "target": 1000,
+          "current": 0,
+          "trend": "growing",
+          "last_updated": "2025-01-15"
+        },
+        "downloads": {
+          "target": 10000,
+          "current": 0,
+          "unit": "monthly_downloads",
+          "trend": "growing",
+          "last_updated": "2025-01-15"
+        },
+        "active_users": {
+          "target": 500,
+          "current": 0,
+          "unit": "monthly_active_users",
+          "measurement": "unique_users",
+          "last_updated": "2025-01-15"
+        },
+        "community_contributions": {
+          "target": 100,
+          "current": 0,
+          "unit": "contributors",
+          "measurement": "yearly",
+          "last_updated": "2025-01-15"
+        }
+      },
+      "usage": {
+        "circuits_generated": {
+          "current": 0,
+          "unit": "total_circuits",
+          "trend": "growing",
+          "last_updated": "2025-01-15"
+        },
+        "circuit_types": {
+          "lna": 0,
+          "mixer": 0,
+          "vco": 0,
+          "pa": 0,
+          "filter": 0,
+          "last_updated": "2025-01-15"
+        },
+        "technology_nodes": {
+          "tsmc65": 0,
+          "gf22": 0,
+          "sky130": 0,
+          "other": 0,
+          "last_updated": "2025-01-15"
+        },
+        "api_requests": {
+          "current": 0,
+          "unit": "monthly_requests",
+          "trend": "growing",
+          "last_updated": "2025-01-15"
+        }
+      },
+      "quality": {
+        "user_satisfaction": {
+          "target": 4.5,
+          "current": 0,
+          "unit": "rating_out_of_5",
+          "measurement": "survey_average",
+          "last_updated": "2025-01-15"
+        },
+        "circuit_quality_score": {
+          "target": 0.85,
+          "current": 0,
+          "unit": "quality_score",
+          "measurement": "average",
+          "last_updated": "2025-01-15"
+        },
+        "specification_compliance": {
+          "target": 95,
+          "current": 0,
+          "unit": "percentage",
+          "measurement": "circuits_meeting_specs",
+          "last_updated": "2025-01-15"
+        }
+      }
+    },
+    "infrastructure": {
+      "ci_cd": {
+        "build_success_rate": {
+          "target": 98,
+          "current": 0,
+          "unit": "percentage",
+          "measurement": "successful_builds",
+          "last_updated": "2025-01-15"
+        },
+        "build_time": {
+          "target": "< 15min",
+          "current": 0,
+          "unit": "minutes",
+          "measurement": "average",
+          "last_updated": "2025-01-15"
+        },
+        "deployment_frequency": {
+          "target": "daily",
+          "current": 0,
+          "unit": "deployments_per_day",
+          "last_updated": "2025-01-15"
+        },
+        "lead_time": {
+          "target": "< 1day",
+          "current": 0,
+          "unit": "hours",
+          "measurement": "commit_to_production",
+          "last_updated": "2025-01-15"
+        }
+      },
+      "monitoring": {
+        "alert_response_time": {
+          "target": "< 30min",
+          "current": 0,
+          "unit": "minutes",
+          "measurement": "average",
+          "last_updated": "2025-01-15"
+        },
+        "false_positive_rate": {
+          "target": "< 5%",
+          "current": 0,
+          "unit": "percentage",
+          "measurement": "false_alerts",
+          "last_updated": "2025-01-15"
+        },
+        "monitoring_coverage": {
+          "target": 95,
+          "current": 0,
+          "unit": "percentage",
+          "measurement": "services_monitored",
+          "last_updated": "2025-01-15"
+        }
+      },
+      "security": {
+        "vulnerability_patching_time": {
+          "target": "< 24h",
+          "current": 0,
+          "unit": "hours",
+          "measurement": "critical_vulnerabilities",
+          "last_updated": "2025-01-15"
+        },
+        "security_scan_frequency": {
+          "target": "daily",
+          "current": 0,
+          "unit": "scans_per_day",
+          "last_updated": "2025-01-15"
+        },
+        "dependency_freshness": {
+          "target": "< 30days",
+          "current": 0,
+          "unit": "days",
+          "measurement": "average_age",
+          "last_updated": "2025-01-15"
+        }
+      }
+    }
+  },
+  "automation": {
+    "enabled": true,
+    "collection_frequency": "daily",
+    "reporting_frequency": "weekly",
+    "dashboards": [
+      {
+        "name": "Development Metrics",
+        "url": "https://grafana.example.com/d/dev-metrics",
+        "description": "Code quality, performance, and reliability metrics"
+      },
+      {
+        "name": "Business Metrics",
+        "url": "https://grafana.example.com/d/business-metrics",
+        "description": "Adoption, usage, and quality metrics"
+      },
+      {
+        "name": "Infrastructure Metrics",
+        "url": "https://grafana.example.com/d/infra-metrics",
+        "description": "CI/CD, monitoring, and security metrics"
+      }
+    ],
+    "alerts": [
+      {
+        "metric": "test_coverage",
+        "condition": "< 80%",
+        "severity": "warning",
+        "notification": "email"
+      },
+      {
+        "metric": "security_vulnerabilities",
+        "condition": "> 0 critical",
+        "severity": "critical",
+        "notification": "slack"
+      },
+      {
+        "metric": "uptime",
+        "condition": "< 99%",
+        "severity": "critical",
+        "notification": "pagerduty"
+      },
+      {
+        "metric": "circuit_generation_success_rate",
+        "condition": "< 90%",
+        "severity": "warning",
+        "notification": "slack"
+      }
+    ]
+  },
+  "tools": {
+    "measurement": [
+      {
+        "name": "Prometheus",
+        "purpose": "Metrics collection",
+        "metrics": ["performance", "reliability", "infrastructure"]
+      },
+      {
+        "name": "Codecov",
+        "purpose": "Test coverage tracking",
+        "metrics": ["test_coverage"]
+      },
+      {
+        "name": "SonarQube",
+        "purpose": "Code quality analysis",
+        "metrics": ["code_complexity", "documentation_coverage"]
+      },
+      {
+        "name": "Snyk",
+        "purpose": "Security vulnerability scanning",
+        "metrics": ["security_vulnerabilities", "dependency_freshness"]
+      },
+      {
+        "name": "GitHub Analytics",
+        "purpose": "Repository metrics",
+        "metrics": ["github_stars", "community_contributions"]
+      }
+    ],
+    "visualization": [
+      {
+        "name": "Grafana",
+        "purpose": "Real-time dashboards",
+        "url": "https://grafana.example.com"
+      },
+      {
+        "name": "GitHub Insights",
+        "purpose": "Repository analytics",
+        "url": "https://github.com/insights"
+      }
+    ],
+    "automation": [
+      {
+        "name": "GitHub Actions",
+        "purpose": "CI/CD pipeline metrics",
+        "workflows": ["ci.yml", "security.yml", "benchmark.yml"]
+      },
+      {
+        "name": "Dependabot",
+        "purpose": "Dependency management",
+        "frequency": "daily"
+      }
+    ]
+  },
+  "goals": {
+    "short_term": {
+      "Q1_2025": {
+        "test_coverage": 80,
+        "github_stars": 100,
+        "documentation_coverage": 85,
+        "circuit_generation_time": 45,
+        "api_response_time": 8
+      }
+    },
+    "medium_term": {
+      "Q2_2025": {
+        "test_coverage": 85,
+        "github_stars": 500,
+        "downloads": 1000,
+        "active_users": 50,
+        "circuit_generation_time": 30,
+        "uptime": 99.5
+      }
+    },
+    "long_term": {
+      "Q4_2025": {
+        "test_coverage": 90,
+        "github_stars": 1000,
+        "downloads": 10000,
+        "active_users": 500,
+        "circuit_generation_time": 20,
+        "uptime": 99.9,
+        "user_satisfaction": 4.5,
+        "community_contributions": 100
+      }
+    }
+  },
+  "reporting": {
+    "frequency": {
+      "daily": ["uptime", "build_success_rate", "security_vulnerabilities"],
+      "weekly": ["test_coverage", "performance_metrics", "user_adoption"],
+      "monthly": ["business_metrics", "community_growth", "goal_progress"],
+      "quarterly": ["comprehensive_review", "goal_adjustment", "strategy_update"]
+    },
+    "stakeholders": {
+      "development_team": ["code_quality", "performance", "infrastructure"],
+      "product_team": ["adoption", "usage", "user_satisfaction"],
+      "leadership": ["business_metrics", "goal_progress", "roi"],
+      "community": ["adoption", "contributions", "project_health"]
+    },
+    "formats": [
+      {
+        "type": "dashboard",
+        "audience": "development_team",
+        "frequency": "real-time",
+        "url": "https://grafana.example.com"
+      },
+      {
+        "type": "email_report",
+        "audience": "leadership",
+        "frequency": "weekly",
+        "template": "executive_summary"
+      },
+      {
+        "type": "github_issue",
+        "audience": "community",
+        "frequency": "monthly",
+        "label": "metrics-report"
+      }
+    ]
+  }
+}
