@@ -1,0 +1,34 @@
+# Example LNA specification for 2.4 GHz WiFi
+circuit_type: "LNA"
+name: "WiFi_LNA_2G4"
+description: "Low noise amplifier for 2.4 GHz WiFi applications"
+
+# Operating conditions
+frequency: 2.4e9        # 2.4 GHz
+temperature: 27.0       # 27°C
+supply_voltage: 1.2     # 1.2V supply
+
+# Performance requirements
+gain_min: 15.0          # Minimum 15 dB gain
+gain_max: 22.0          # Maximum 22 dB gain
+nf_max: 1.8             # Maximum 1.8 dB noise figure
+power_max: 12e-3        # Maximum 12 mW power consumption
+
+# Matching requirements
+input_impedance: 50.0   # 50 ohm input
+output_impedance: 50.0  # 50 ohm output
+s11_max: -12.0          # Better than -12 dB input return loss
+s22_max: -12.0          # Better than -12 dB output return loss
+
+# Bandwidth
+bandwidth: 100e6        # 100 MHz bandwidth
+
+# Technology
+technology: "TSMC65nm"
+
+# Optimization weights
+weights:
+  gain: 1.0
+  noise_figure: 2.0     # Prioritize low noise
+  power: 1.5            # Moderate power optimization
+  area: 0.5

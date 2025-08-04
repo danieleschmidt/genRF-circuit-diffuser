@@ -9,14 +9,33 @@ __version__ = "0.1.0"
 __author__ = "Daniel Schmidt"
 __email__ = "daniel@example.com"
 
-# Core imports for easy access
-from .core.circuit_diffuser import CircuitDiffuser
-from .core.design_spec import DesignSpec
-from .core.technology import TechnologyFile
+# Core imports for easy access  
+from .core import (
+    CircuitDiffuser, CircuitResult,
+    DesignSpec, CommonSpecs,
+    TechnologyFile, DeviceModel, PassiveModel, DesignRules,
+    SPICEEngine, SPICEError,
+    BayesianOptimizer, OptimizationResult, ParetoFrontOptimizer,
+    CodeExporter,
+    CycleGAN, DiffusionModel
+)
 
 # Make main classes available at package level
 __all__ = [
     "CircuitDiffuser",
+    "CircuitResult",
     "DesignSpec", 
+    "CommonSpecs",
     "TechnologyFile",
+    "DeviceModel",
+    "PassiveModel",
+    "DesignRules",
+    "SPICEEngine",
+    "SPICEError", 
+    "BayesianOptimizer",
+    "OptimizationResult",
+    "ParetoFrontOptimizer",
+    "CodeExporter",
+    "CycleGAN",
+    "DiffusionModel"
 ]

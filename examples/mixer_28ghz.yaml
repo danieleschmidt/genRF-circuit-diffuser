@@ -1,0 +1,39 @@
+# Example mixer specification for 28 GHz mmWave
+circuit_type: "Mixer"
+name: "mmWave_Mixer_28G"
+description: "Down-conversion mixer for 28 GHz mmWave 5G"
+
+# Operating conditions
+frequency: 28e9         # 28 GHz RF frequency
+temperature: 27.0       # 27°C
+supply_voltage: 1.0     # 1.0V supply (advanced node)
+
+# Performance requirements
+gain_min: 8.0           # Minimum 8 dB conversion gain
+gain_max: 15.0          # Maximum 15 dB conversion gain
+nf_max: 8.0             # Maximum 8 dB noise figure
+power_max: 35e-3        # Maximum 35 mW power consumption
+
+# Linearity requirements
+ip3_min: 5.0            # Minimum 5 dBm IIP3
+p1db_min: -5.0          # Minimum -5 dBm P1dB
+
+# Matching requirements
+input_impedance: 50.0   # 50 ohm RF input
+output_impedance: 50.0  # 50 ohm IF output
+s11_max: -8.0           # Better than -8 dB input return loss (relaxed for mmWave)
+
+# Frequency specs
+frequency_min: 26.5e9   # 26.5 GHz minimum RF
+frequency_max: 29.5e9   # 29.5 GHz maximum RF
+
+# Technology
+technology: "TSMC28nm"
+
+# Optimization weights
+weights:
+  gain: 1.0
+  noise_figure: 1.0
+  power: 1.0
+  linearity: 1.5        # Important for mixer
+  area: 0.3
