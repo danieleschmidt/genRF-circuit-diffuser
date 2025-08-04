@@ -51,17 +51,110 @@ def main():
 
 def _generate_circuit(args):
     """Generate circuit from specification."""
-    print(f"Generating circuit from {args.spec}")
-    print(f"Output: {args.output} (format: {args.format})")
-    # TODO: Implement circuit generation
-    return 0
+    try:
+        from . import CircuitDiffuser, DesignSpec, TechnologyFile, CodeExporter
+        import yaml
+        import json
+        
+        print(f"Loading specification from {args.spec}")
+        
+        # Load design specification
+        spec_path = Path(args.spec)
+        if not spec_path.exists():
+            print(f"Error: Specification file not found: {args.spec}", file=sys.stderr)
+            return 1
+        
+        # Load spec based on file extension
+        if spec_path.suffix.lower() == '.yaml' or spec_path.suffix.lower() == '.yml':
+            spec = DesignSpec.from_yaml(spec_path)
+        elif spec_path.suffix.lower() == '.json':
+            spec = DesignSpec.from_json(spec_path)
+        else:
+            print(f"Error: Unsupported specification format: {spec_path.suffix}", file=sys.stderr)
+            return 1
+        
+        print(f"Loaded specification: {spec.name}")
+        print(f"Circuit type: {spec.circuit_type}")
+        print(f"Frequency: {spec.frequency/1e9:.2f} GHz")
+        
+        # Initialize circuit diffuser
+        print("Initializing CircuitDiffuser...")
+        diffuser = CircuitDiffuser(
+            spice_engine="ngspice",
+            technology=TechnologyFile.default(),
+            verbose=True
+        )
+        
+        # Generate circuit
+        print("Generating circuit...")
+        circuit = diffuser.generate(
+            spec,
+            n_candidates=5,  # Reduced for demo
+            optimization_steps=10,  # Reduced for demo
+            validate_spice=False  # Skip SPICE validation for now
+        )
+        
+        print(f"Generation complete!")
+        print(f"Best performance: Gain={circuit.gain:.1f}dB, NF={circuit.nf:.2f}dB, Power={circuit.power*1000:.1f}mW")
+        
+        # Create output directory
+        output_dir = Path(args.output)
+        output_dir.mkdir(exist_ok=True, parents=True)
+        
+        # Export circuit
+        exporter = CodeExporter()
+        
+        if args.format == 'skill':
+            output_file = output_dir / f"{spec.name}.il"
+            circuit.export_skill(output_file)
+        elif args.format == 'verilog-a':
+            output_file = output_dir / f"{spec.name}.va"
+            circuit.export_verilog_a(output_file)
+        elif args.format == 'ads':
+            output_file = output_dir / f"{spec.name}.net"
+            exporter.export_ads(circuit, output_file)
+        else:
+            # Export all formats
+            exported_files = exporter.export_all_formats(circuit, output_dir)
+            print(f"Exported {len(exported_files)} formats:")
+            for fmt, filepath in exported_files.items():
+                print(f"  {fmt}: {filepath}")
+            return 0
+        
+        print(f"Circuit exported to: {output_file}")
+        return 0
+        
+    except ImportError as e:
+        print(f"Import Error: {e}", file=sys.stderr)
+        print("Please ensure all dependencies are installed.", file=sys.stderr)
+        return 1
+    except Exception as e:
+        print(f"Error generating circuit: {e}", file=sys.stderr)
+        return 1
 
 
 def _launch_dashboard(args):
     """Launch interactive dashboard."""
-    print(f"Starting dashboard at http://{args.host}:{args.port}")
-    # TODO: Implement dashboard launch
-    return 0
+    try:
+        import threading
+        import time
+        
+        print(f"Starting GenRF dashboard at http://{args.host}:{args.port}")
+        print("Dashboard functionality coming soon!")
+        print("For now, use the 'generate' command to create circuits.")
+        
+        # Placeholder implementation
+        print("Press Ctrl+C to stop")
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            print("\nDashboard stopped.")
+            return 0
+            
+    except Exception as e:
+        print(f"Error launching dashboard: {e}", file=sys.stderr)
+        return 1
 
 
 if __name__ == "__main__":
