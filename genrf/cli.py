@@ -136,22 +136,26 @@ def _generate_circuit(args):
 def _launch_dashboard(args):
     """Launch interactive dashboard."""
     try:
-        import threading
-        import time
+        from .dashboard import launch_dashboard
         
-        print(f"Starting GenRF dashboard at http://{args.host}:{args.port}")
-        print("Dashboard functionality coming soon!")
-        print("For now, use the 'generate' command to create circuits.")
+        print(f"🚀 Launching GenRF Interactive Dashboard")
+        print(f"   Dashboard URL: http://{args.host}:{args.port}")
+        print(f"   Use Ctrl+C to stop the server")
+        print("")
         
-        # Placeholder implementation
-        print("Press Ctrl+C to stop")
-        try:
-            while True:
-                time.sleep(1)
-        except KeyboardInterrupt:
-            print("\nDashboard stopped.")
-            return 0
-            
+        # Launch dashboard
+        dashboard = launch_dashboard(host=args.host, port=args.port, debug=False)
+        dashboard.run()
+        
+        return 0
+        
+    except ImportError as e:
+        print(f"Dashboard Error: {e}", file=sys.stderr)
+        print("Dashboard requires additional dependencies:", file=sys.stderr)
+        print("  pip install dash plotly pandas", file=sys.stderr)
+        print("", file=sys.stderr)
+        print("For now, use the 'generate' command to create circuits.", file=sys.stderr)
+        return 1
     except Exception as e:
         print(f"Error launching dashboard: {e}", file=sys.stderr)
         return 1

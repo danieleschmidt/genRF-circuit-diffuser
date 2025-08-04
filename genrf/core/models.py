@@ -1,0 +1,631 @@
+"""
+AI Models for RF Circuit Generation.
+
+This module implements the generative AI models used for circuit topology
+generation and parameter optimization:
+- CycleGAN for topology generation
+- DiffusionModel for parameter optimization
+"""
+
+import logging
+import math
+from typing import Dict, List, Optional, Tuple, Union
+import warnings
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import numpy as np
+from dataclasses import dataclass
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class ModelConfig:
+    """Configuration for AI models."""
+    input_dim: int = 100
+    hidden_dim: int = 256
+    output_dim: int = 64
+    num_layers: int = 4
+    dropout: float = 0.1
+    activation: str = "relu"
+    batch_norm: bool = True
+    device: str = "auto"
+
+
+class CycleGAN(nn.Module):
+    """
+    Cycle-consistent GAN for RF circuit topology generation.
+    
+    Generates circuit topologies conditioned on design specifications.
+    Uses cycle consistency to ensure topology validity and diversity.
+    """
+    
+    def __init__(
+        self,
+        spec_dim: int = 9,
+        latent_dim: int = 100,
+        topology_dim: int = 64,
+        hidden_dim: int = 256
+    ):
+        """
+        Initialize CycleGAN for topology generation.
+        
+        Args:
+            spec_dim: Dimension of specification conditioning vector
+            latent_dim: Dimension of latent noise vector
+            topology_dim: Dimension of topology representation
+            hidden_dim: Hidden layer dimension
+        """
+        super().__init__()
+        
+        self.spec_dim = spec_dim
+        self.latent_dim = latent_dim
+        self.topology_dim = topology_dim
+        self.hidden_dim = hidden_dim
+        
+        # Generator: spec + noise -> topology
+        self.generator = self._build_generator()
+        
+        # Discriminator: topology -> real/fake
+        self.discriminator = self._build_discriminator()
+        
+        # Cycle generator: topology -> reconstructed spec
+        self.cycle_generator = self._build_cycle_generator()
+        
+        logger.info(f"CycleGAN initialized with spec_dim={spec_dim}, "
+                   f"latent_dim={latent_dim}, topology_dim={topology_dim}")
+    
+    def _build_generator(self) -> nn.Module:
+        """Build the main generator network."""
+        input_dim = self.spec_dim + self.latent_dim
+        
+        return nn.Sequential(
+            nn.Linear(input_dim, self.hidden_dim),
+            nn.BatchNorm1d(self.hidden_dim),
+            nn.ReLU(inplace=True),
+            nn.Dropout(0.1),
+            
+            nn.Linear(self.hidden_dim, self.hidden_dim * 2),
+            nn.BatchNorm1d(self.hidden_dim * 2),
+            nn.ReLU(inplace=True),
+            nn.Dropout(0.1),
+            
+            nn.Linear(self.hidden_dim * 2, self.hidden_dim),
+            nn.BatchNorm1d(self.hidden_dim),
+            nn.ReLU(inplace=True),
+            
+            nn.Linear(self.hidden_dim, self.topology_dim),
+            nn.Tanh()  # Output in [-1, 1]
+        )
+    
+    def _build_discriminator(self) -> nn.Module:
+        """Build the discriminator network."""
+        return nn.Sequential(
+            nn.Linear(self.topology_dim, self.hidden_dim),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Dropout(0.3),
+            
+            nn.Linear(self.hidden_dim, self.hidden_dim // 2),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Dropout(0.3),
+            
+            nn.Linear(self.hidden_dim // 2, self.hidden_dim // 4),
+            nn.LeakyReLU(0.2, inplace=True),
+            
+            nn.Linear(self.hidden_dim // 4, 1),
+            nn.Sigmoid()
+        )
+    
+    def _build_cycle_generator(self) -> nn.Module:
+        """Build the cycle consistency generator."""
+        return nn.Sequential(
+            nn.Linear(self.topology_dim, self.hidden_dim),
+            nn.BatchNorm1d(self.hidden_dim),
+            nn.ReLU(inplace=True),
+            
+            nn.Linear(self.hidden_dim, self.hidden_dim // 2),
+            nn.BatchNorm1d(self.hidden_dim // 2),
+            nn.ReLU(inplace=True),
+            
+            nn.Linear(self.hidden_dim // 2, self.spec_dim),
+            nn.Tanh()  # Match input range
+        )
+    
+    def generate(
+        self, 
+        noise: torch.Tensor, 
+        condition: torch.Tensor
+    ) -> torch.Tensor:
+        """
+        Generate topology from noise and conditioning.
+        
+        Args:
+            noise: Random noise tensor [batch_size, latent_dim]
+            condition: Conditioning vector [batch_size, spec_dim]
+            
+        Returns:
+            Generated topology tensor [batch_size, topology_dim]
+        """
+        # Concatenate condition and noise
+        input_tensor = torch.cat([condition, noise], dim=1)
+        
+        # Generate topology
+        topology = self.generator(input_tensor)
+        
+        return topology
+    
+    def discriminate(self, topology: torch.Tensor) -> torch.Tensor:
+        """
+        Discriminate real vs fake topologies.
+        
+        Args:
+            topology: Topology tensor [batch_size, topology_dim]
+            
+        Returns:
+            Probability of being real [batch_size, 1]
+        """
+        return self.discriminator(topology)
+    
+    def cycle_forward(self, topology: torch.Tensor) -> torch.Tensor:
+        """
+        Cycle consistency forward pass.
+        
+        Args:
+            topology: Topology tensor [batch_size, topology_dim]
+            
+        Returns:
+            Reconstructed specification [batch_size, spec_dim]
+        """
+        return self.cycle_generator(topology)
+    
+    def forward(
+        self, 
+        noise: torch.Tensor, 
+        condition: torch.Tensor
+    ) -> Dict[str, torch.Tensor]:
+        """
+        Full forward pass for training.
+        
+        Args:
+            noise: Random noise tensor
+            condition: Conditioning vector
+            
+        Returns:
+            Dictionary with generated topology, discriminator output, 
+            and cycle consistency reconstruction
+        """
+        # Generate topology
+        fake_topology = self.generate(noise, condition)
+        
+        # Discriminate
+        fake_score = self.discriminate(fake_topology)
+        
+        # Cycle consistency
+        reconstructed_spec = self.cycle_forward(fake_topology)
+        
+        return {
+            'fake_topology': fake_topology,
+            'fake_score': fake_score,
+            'reconstructed_spec': reconstructed_spec
+        }
+
+
+class DiffusionModel(nn.Module):
+    """
+    Denoising diffusion model for RF circuit parameter optimization.
+    
+    Uses denoising diffusion probabilistic models (DDPM) to generate
+    optimal component parameters conditioned on topology and specifications.
+    """
+    
+    def __init__(
+        self,
+        param_dim: int = 32,
+        condition_dim: int = 16,
+        hidden_dim: int = 256,
+        time_dim: int = 32,
+        num_timesteps: int = 1000
+    ):
+        """
+        Initialize diffusion model for parameter generation.
+        
+        Args:
+            param_dim: Dimension of parameter vector
+            condition_dim: Dimension of conditioning vector
+            hidden_dim: Hidden layer dimension
+            time_dim: Time embedding dimension
+            num_timesteps: Number of diffusion timesteps
+        """
+        super().__init__()
+        
+        self.param_dim = param_dim
+        self.condition_dim = condition_dim
+        self.hidden_dim = hidden_dim
+        self.time_dim = time_dim
+        self.num_timesteps = num_timesteps
+        
+        # U-Net architecture for denoising
+        self.denoiser = self._build_denoiser()
+        
+        # Time embedding
+        self.time_embedding = self._build_time_embedding()
+        
+        # Noise schedule
+        self.register_buffer('betas', self._cosine_beta_schedule(num_timesteps))
+        self.register_buffer('alphas', 1.0 - self.betas)
+        self.register_buffer('alphas_cumprod', torch.cumprod(self.alphas, dim=0))
+        
+        logger.info(f"DiffusionModel initialized with param_dim={param_dim}, "
+                   f"timesteps={num_timesteps}")
+    
+    def _build_denoiser(self) -> nn.Module:
+        """Build the denoising U-Net."""
+        input_dim = self.param_dim + self.condition_dim + self.time_dim
+        
+        return nn.Sequential(
+            # Encoder
+            nn.Linear(input_dim, self.hidden_dim),
+            nn.BatchNorm1d(self.hidden_dim),
+            nn.SiLU(inplace=True),
+            
+            nn.Linear(self.hidden_dim, self.hidden_dim * 2),
+            nn.BatchNorm1d(self.hidden_dim * 2),
+            nn.SiLU(inplace=True),
+            nn.Dropout(0.1),
+            
+            # Bottleneck
+            nn.Linear(self.hidden_dim * 2, self.hidden_dim * 2),
+            nn.BatchNorm1d(self.hidden_dim * 2),
+            nn.SiLU(inplace=True),
+            
+            # Decoder
+            nn.Linear(self.hidden_dim * 2, self.hidden_dim),
+            nn.BatchNorm1d(self.hidden_dim),
+            nn.SiLU(inplace=True),
+            
+            nn.Linear(self.hidden_dim, self.param_dim)
+        )
+    
+    def _build_time_embedding(self) -> nn.Module:
+        """Build sinusoidal time embedding."""
+        return nn.Sequential(
+            nn.Linear(1, self.time_dim),
+            nn.SiLU(inplace=True),
+            nn.Linear(self.time_dim, self.time_dim)
+        )
+    
+    def _cosine_beta_schedule(self, timesteps: int) -> torch.Tensor:
+        """Create cosine noise schedule."""
+        s = 0.008
+        steps = timesteps + 1
+        x = torch.linspace(0, timesteps, steps)
+        alphas_cumprod = torch.cos(((x / timesteps) + s) / (1 + s) * math.pi * 0.5) ** 2
+        alphas_cumprod = alphas_cumprod / alphas_cumprod[0]
+        betas = 1 - (alphas_cumprod[1:] / alphas_cumprod[:-1])
+        return torch.clip(betas, 0.0001, 0.9999)
+    
+    def _get_time_embedding(self, timesteps: torch.Tensor) -> torch.Tensor:
+        """Get sinusoidal time embeddings."""
+        # Normalize timesteps to [0, 1]
+        normalized_t = timesteps.float() / self.num_timesteps
+        
+        # Apply time embedding network
+        time_emb = self.time_embedding(normalized_t.unsqueeze(-1))
+        
+        return time_emb
+    
+    def add_noise(
+        self, 
+        x_0: torch.Tensor, 
+        timesteps: torch.Tensor
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        """
+        Add noise to clean parameters according to diffusion schedule.
+        
+        Args:
+            x_0: Clean parameter tensor [batch_size, param_dim]
+            timesteps: Timestep tensor [batch_size]
+            
+        Returns:
+            Tuple of (noisy_params, noise)
+        """
+        noise = torch.randn_like(x_0)
+        
+        # Get alpha values for timesteps
+        alpha_cumprod = self.alphas_cumprod.gather(0, timesteps)
+        alpha_cumprod = alpha_cumprod.view(-1, 1)
+        
+        # Add noise: x_t = sqrt(alpha_cumprod) * x_0 + sqrt(1 - alpha_cumprod) * noise
+        x_t = torch.sqrt(alpha_cumprod) * x_0 + torch.sqrt(1 - alpha_cumprod) * noise
+        
+        return x_t, noise
+    
+    def denoise(
+        self, 
+        x_t: torch.Tensor, 
+        timesteps: torch.Tensor, 
+        condition: torch.Tensor
+    ) -> torch.Tensor:
+        """
+        Denoise parameters at given timesteps.
+        
+        Args:
+            x_t: Noisy parameter tensor [batch_size, param_dim]
+            timesteps: Timestep tensor [batch_size]
+            condition: Conditioning tensor [batch_size, condition_dim]
+            
+        Returns:
+            Predicted noise [batch_size, param_dim]
+        """
+        # Get time embeddings
+        time_emb = self._get_time_embedding(timesteps)
+        
+        # Concatenate inputs
+        denoiser_input = torch.cat([x_t, condition, time_emb], dim=1)
+        
+        # Predict noise
+        predicted_noise = self.denoiser(denoiser_input)
+        
+        return predicted_noise
+    
+    def sample(
+        self, 
+        condition: torch.Tensor, 
+        num_inference_steps: int = 50
+    ) -> torch.Tensor:
+        """
+        Sample parameters using DDPM sampling.
+        
+        Args:
+            condition: Conditioning tensor [batch_size, condition_dim]
+            num_inference_steps: Number of denoising steps
+            
+        Returns:
+            Generated parameters [batch_size, param_dim]
+        """
+        batch_size = condition.shape[0]
+        device = condition.device
+        
+        # Start from pure noise
+        x_t = torch.randn(batch_size, self.param_dim, device=device)
+        
+        # Create sampling timesteps
+        timesteps = torch.linspace(
+            self.num_timesteps - 1, 0, num_inference_steps,
+            dtype=torch.long, device=device
+        )
+        
+        # Denoise iteratively
+        for i, t in enumerate(timesteps):
+            t_batch = torch.full((batch_size,), t, device=device, dtype=torch.long)
+            
+            with torch.no_grad():
+                # Predict noise
+                predicted_noise = self.denoise(x_t, t_batch, condition)
+                
+                # Get alpha values
+                alpha = self.alphas[t]
+                alpha_cumprod = self.alphas_cumprod[t]
+                
+                if t > 0:
+                    alpha_cumprod_prev = self.alphas_cumprod[t - 1]
+                else:
+                    alpha_cumprod_prev = torch.tensor(1.0, device=device)
+                
+                # Compute denoised sample
+                pred_x_0 = (x_t - torch.sqrt(1 - alpha_cumprod) * predicted_noise) / torch.sqrt(alpha_cumprod)
+                
+                # Compute previous sample
+                if t > 0:
+                    # Add noise for next step
+                    noise = torch.randn_like(x_t)
+                    x_t = (
+                        torch.sqrt(alpha_cumprod_prev) * pred_x_0 +
+                        torch.sqrt(1 - alpha_cumprod_prev - alpha * (1 - alpha_cumprod_prev) / (1 - alpha_cumprod)) * noise +
+                        torch.sqrt(alpha * (1 - alpha_cumprod_prev) / (1 - alpha_cumprod)) * predicted_noise
+                    )
+                else:
+                    x_t = pred_x_0
+        
+        return x_t
+    
+    def forward(
+        self, 
+        x_0: torch.Tensor, 
+        condition: torch.Tensor,
+        timesteps: Optional[torch.Tensor] = None
+    ) -> Dict[str, torch.Tensor]:
+        """
+        Forward pass for training.
+        
+        Args:
+            x_0: Clean parameter tensor
+            condition: Conditioning tensor
+            timesteps: Optional timesteps (random if None)
+            
+        Returns:
+            Dictionary with loss components
+        """
+        batch_size = x_0.shape[0]
+        device = x_0.device
+        
+        # Sample random timesteps if not provided
+        if timesteps is None:
+            timesteps = torch.randint(
+                0, self.num_timesteps, (batch_size,), device=device
+            )
+        
+        # Add noise
+        x_t, noise = self.add_noise(x_0, timesteps)
+        
+        # Predict noise
+        predicted_noise = self.denoise(x_t, timesteps, condition)
+        
+        # Compute loss
+        loss = F.mse_loss(predicted_noise, noise)
+        
+        return {
+            'loss': loss,
+            'predicted_noise': predicted_noise,
+            'target_noise': noise,
+            'noisy_params': x_t
+        }
+
+
+class ModelTrainer:
+    """Trainer for both CycleGAN and DiffusionModel."""
+    
+    def __init__(
+        self,
+        cycle_gan: CycleGAN,
+        diffusion_model: DiffusionModel,
+        device: torch.device,
+        learning_rate: float = 1e-4
+    ):
+        """
+        Initialize model trainer.
+        
+        Args:
+            cycle_gan: CycleGAN model
+            diffusion_model: Diffusion model
+            device: Training device
+            learning_rate: Learning rate for optimizers
+        """
+        self.cycle_gan = cycle_gan
+        self.diffusion_model = diffusion_model
+        self.device = device
+        
+        # Optimizers
+        self.gen_optimizer = torch.optim.Adam(
+            cycle_gan.generator.parameters(), lr=learning_rate
+        )
+        self.disc_optimizer = torch.optim.Adam(
+            cycle_gan.discriminator.parameters(), lr=learning_rate
+        )
+        self.diffusion_optimizer = torch.optim.Adam(
+            diffusion_model.parameters(), lr=learning_rate
+        )
+        
+        logger.info("ModelTrainer initialized")
+    
+    def train_cycle_gan_step(
+        self, 
+        real_topology: torch.Tensor,
+        spec_condition: torch.Tensor,
+        noise: torch.Tensor
+    ) -> Dict[str, float]:
+        """Train CycleGAN for one step."""
+        batch_size = real_topology.shape[0]
+        
+        # Train Generator
+        self.gen_optimizer.zero_grad()
+        
+        gan_output = self.cycle_gan(noise, spec_condition)
+        fake_topology = gan_output['fake_topology']
+        fake_score = gan_output['fake_score']
+        reconstructed_spec = gan_output['reconstructed_spec']
+        
+        # Generator losses
+        gen_loss = F.binary_cross_entropy(
+            fake_score, torch.ones_like(fake_score)
+        )
+        cycle_loss = F.mse_loss(reconstructed_spec, spec_condition)
+        
+        total_gen_loss = gen_loss + 10.0 * cycle_loss
+        total_gen_loss.backward()
+        self.gen_optimizer.step()
+        
+        # Train Discriminator
+        self.disc_optimizer.zero_grad()
+        
+        real_score = self.cycle_gan.discriminate(real_topology)
+        fake_score = self.cycle_gan.discriminate(fake_topology.detach())
+        
+        real_loss = F.binary_cross_entropy(
+            real_score, torch.ones_like(real_score)
+        )
+        fake_loss = F.binary_cross_entropy(
+            fake_score, torch.zeros_like(fake_score)
+        )
+        
+        disc_loss = (real_loss + fake_loss) / 2
+        disc_loss.backward()
+        self.disc_optimizer.step()
+        
+        return {
+            'gen_loss': gen_loss.item(),
+            'cycle_loss': cycle_loss.item(),
+            'disc_loss': disc_loss.item()
+        }
+    
+    def train_diffusion_step(
+        self,
+        clean_params: torch.Tensor,
+        condition: torch.Tensor
+    ) -> Dict[str, float]:
+        """Train diffusion model for one step."""
+        self.diffusion_optimizer.zero_grad()
+        
+        diffusion_output = self.diffusion_model(clean_params, condition)
+        loss = diffusion_output['loss']
+        
+        loss.backward()
+        self.diffusion_optimizer.step()
+        
+        return {'diffusion_loss': loss.item()}
+
+
+def load_pretrained_models(checkpoint_path: str, device: torch.device) -> Tuple[CycleGAN, DiffusionModel]:
+    """
+    Load pre-trained models from checkpoint.
+    
+    Args:
+        checkpoint_path: Path to checkpoint file
+        device: Device to load models on
+        
+    Returns:
+        Tuple of (CycleGAN, DiffusionModel)
+    """
+    checkpoint = torch.load(checkpoint_path, map_location=device)
+    
+    # Initialize models
+    cycle_gan = CycleGAN().to(device)
+    diffusion_model = DiffusionModel().to(device)
+    
+    # Load state dicts
+    cycle_gan.load_state_dict(checkpoint['cycle_gan_state_dict'])
+    diffusion_model.load_state_dict(checkpoint['diffusion_model_state_dict'])
+    
+    logger.info(f"Models loaded from {checkpoint_path}")
+    
+    return cycle_gan, diffusion_model
+
+
+def save_models(
+    cycle_gan: CycleGAN,
+    diffusion_model: DiffusionModel,
+    checkpoint_path: str,
+    epoch: int,
+    losses: Dict[str, float]
+) -> None:
+    """
+    Save model checkpoint.
+    
+    Args:
+        cycle_gan: CycleGAN model
+        diffusion_model: Diffusion model
+        checkpoint_path: Path to save checkpoint
+        epoch: Current epoch
+        losses: Training losses
+    """
+    checkpoint = {
+        'cycle_gan_state_dict': cycle_gan.state_dict(),
+        'diffusion_model_state_dict': diffusion_model.state_dict(),
+        'epoch': epoch,
+        'losses': losses
+    }
+    
+    torch.save(checkpoint, checkpoint_path)
+    logger.info(f"Models saved to {checkpoint_path}")
