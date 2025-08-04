@@ -350,7 +350,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 ```bibtex
 @article{genrf_circuit_diffuser,
   title={GenRF: Generative Models for Analog and RF Circuit Synthesis},
-  author={Your Name},
+  author={Daniel Schmidt},
   journal={IEEE Transactions on Computer-Aided Design},
   year={2025},
   doi={10.1109/TCAD.2025.XXXXXX}
