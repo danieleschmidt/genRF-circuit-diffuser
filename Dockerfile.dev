@@ -1,7 +1,7 @@
 # Development Dockerfile for GenRF Circuit Diffuser
 # Optimized for development with all tools and dependencies
 
-FROM python:3.11-slim as base
+FROM python:3.13-slim as base
 
 # Avoid prompts from apt
 ENV DEBIAN_FRONTEND=noninteractive
