@@ -1,0 +1,47 @@
+{
+  "timestamp": 1754572882.4764342,
+  "total_tests": 5,
+  "passed_tests": 0,
+  "failed_tests": 5,
+  "success_rate": 0.0,
+  "total_duration": 0.016399145126342773,
+  "average_test_duration": 0.003242969512939453,
+  "innovations_validated": [],
+  "test_details": [
+    {
+      "name": "Physics-Informed Diffusion Models",
+      "success": false,
+      "duration": 0.013404130935668945,
+      "innovation": "Physics-informed AI models for RF circuit generation",
+      "details": "Error: No module named 'torch'"
+    },
+    {
+      "name": "Hierarchical Circuit Generation",
+      "success": false,
+      "duration": 0.0008211135864257812,
+      "innovation": "Compositional circuit generation with building blocks",
+      "details": "Error: No module named 'torch'"
+    },
+    {
+      "name": "Graph Neural Network Topology Generation",
+      "success": false,
+      "duration": 0.0007102489471435547,
+      "innovation": "Graph Neural Networks for circuit topology modeling",
+      "details": "Error: No module named 'torch'"
+    },
+    {
+      "name": "Quantum-Inspired Optimization",
+      "success": false,
+      "duration": 0.0006165504455566406,
+      "innovation": "Quantum algorithms for circuit design space exploration",
+      "details": "Error: No module named 'torch'"
+    },
+    {
+      "name": "Integration and Performance",
+      "success": false,
+      "duration": 0.0006628036499023438,
+      "innovation": "System integration and performance optimization",
+      "details": "Error: No module named 'torch'"
+    }
+  ]
+}
