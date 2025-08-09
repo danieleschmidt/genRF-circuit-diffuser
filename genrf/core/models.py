@@ -115,6 +115,73 @@ class CycleGAN(nn.Module):
             nn.LeakyReLU(0.2, inplace=True),
             
             nn.Linear(self.hidden_dim // 4, 1),
+            nn.Sigmoid()  # Output probability [0, 1]
+        )
+    
+    def _build_cycle_generator(self) -> nn.Module:
+        """Build the cycle consistency generator."""
+        return nn.Sequential(
+            nn.Linear(self.topology_dim, self.hidden_dim),
+            nn.BatchNorm1d(self.hidden_dim),
+            nn.ReLU(inplace=True),
+            
+            nn.Linear(self.hidden_dim, self.hidden_dim // 2),
+            nn.BatchNorm1d(self.hidden_dim // 2),
+            nn.ReLU(inplace=True),
+            
+            nn.Linear(self.hidden_dim // 2, self.spec_dim)
+        )
+    
+    def forward(self, specs: torch.Tensor, noise: torch.Tensor) -> Dict[str, torch.Tensor]:
+        """Forward pass of CycleGAN."""
+        batch_size = specs.size(0)
+        
+        # Generate topology from spec + noise
+        gen_input = torch.cat([specs, noise], dim=1)
+        topology = self.generator(gen_input)
+        
+        # Discriminator prediction
+        d_pred = self.discriminator(topology)
+        
+        # Cycle consistency: topology -> reconstructed spec
+        reconstructed_spec = self.cycle_generator(topology)
+        
+        return {
+            'topology': topology,
+            'discriminator_pred': d_pred,
+            'reconstructed_spec': reconstructed_spec
+        }
+    
+    def generate(self, specs: torch.Tensor, num_samples: int = 1) -> torch.Tensor:
+        """Generate topologies for given specifications."""
+        self.eval()
+        batch_size = specs.size(0)
+        
+        topologies = []
+        for _ in range(num_samples):
+            noise = torch.randn(batch_size, self.latent_dim, device=specs.device)
+            with torch.no_grad():
+                gen_input = torch.cat([specs, noise], dim=1)
+                topology = self.generator(gen_input)
+                topologies.append(topology)
+        
+        return torch.stack(topologies, dim=1)  # [batch, num_samples, topology_dim]
+    
+    def _build_discriminator(self) -> nn.Module:
+        """Build the discriminator network."""
+        return nn.Sequential(
+            nn.Linear(self.topology_dim, self.hidden_dim),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Dropout(0.3),
+            
+            nn.Linear(self.hidden_dim, self.hidden_dim // 2),
+            nn.LeakyReLU(0.2, inplace=True),
+            nn.Dropout(0.3),
+            
+            nn.Linear(self.hidden_dim // 2, self.hidden_dim // 4),
+            nn.LeakyReLU(0.2, inplace=True),
+            
+            nn.Linear(self.hidden_dim // 4, 1),
             nn.Sigmoid()
         )
     
@@ -132,6 +199,191 @@ class CycleGAN(nn.Module):
             nn.Linear(self.hidden_dim // 2, self.spec_dim),
             nn.Tanh()  # Match input range
         )
+
+
+class DiffusionModel(nn.Module):
+    """Denoising diffusion model for RF circuit parameter generation."""
+    
+    def __init__(
+        self,
+        param_dim: int = 32,
+        condition_dim: int = 64,
+        hidden_dim: int = 256,
+        num_timesteps: int = 1000,
+        beta_start: float = 1e-4,
+        beta_end: float = 0.02
+    ):
+        super().__init__()
+        
+        self.param_dim = param_dim
+        self.condition_dim = condition_dim
+        self.hidden_dim = hidden_dim
+        self.num_timesteps = num_timesteps
+        
+        # Beta schedule for noise
+        self.register_buffer(
+            'betas',
+            torch.linspace(beta_start, beta_end, num_timesteps)
+        )
+        self.register_buffer('alphas', 1.0 - self.betas)
+        self.register_buffer('alphas_cumprod', torch.cumprod(self.alphas, dim=0))
+        
+        # U-Net style denoising network
+        self.time_embedding = nn.Sequential(
+            nn.Linear(1, hidden_dim),
+            nn.SiLU(),
+            nn.Linear(hidden_dim, hidden_dim)
+        )
+        
+        self.input_projection = nn.Linear(param_dim + condition_dim, hidden_dim)
+        
+        # Encoder
+        self.encoder = nn.ModuleList([
+            nn.Sequential(
+                nn.Linear(hidden_dim, hidden_dim),
+                nn.GroupNorm(8, hidden_dim),
+                nn.SiLU(),
+                nn.Linear(hidden_dim, hidden_dim)
+            ) for _ in range(3)
+        ])
+        
+        # Middle
+        self.middle = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim * 2),
+            nn.GroupNorm(16, hidden_dim * 2),
+            nn.SiLU(),
+            nn.Linear(hidden_dim * 2, hidden_dim)
+        )
+        
+        # Decoder  
+        self.decoder = nn.ModuleList([
+            nn.Sequential(
+                nn.Linear(hidden_dim * 2, hidden_dim),
+                nn.GroupNorm(8, hidden_dim),
+                nn.SiLU(),
+                nn.Linear(hidden_dim, hidden_dim)
+            ) for _ in range(3)
+        ])
+        
+        self.output_projection = nn.Linear(hidden_dim, param_dim)
+        
+    def forward(self, x: torch.Tensor, t: torch.Tensor, condition: torch.Tensor) -> torch.Tensor:
+        """Predict noise to be removed from x at timestep t."""
+        batch_size = x.size(0)
+        
+        # Time embedding
+        t_emb = self.time_embedding(t.float().unsqueeze(-1))
+        
+        # Input projection
+        h = self.input_projection(torch.cat([x, condition], dim=-1))
+        h = h + t_emb
+        
+        # Encoder with skip connections
+        skip_connections = []
+        for layer in self.encoder:
+            h = layer(h) + h  # Residual connection
+            skip_connections.append(h)
+        
+        # Middle
+        h = self.middle(h)
+        
+        # Decoder with skip connections
+        for layer, skip in zip(self.decoder, reversed(skip_connections)):
+            h = torch.cat([h, skip], dim=-1)
+            h = layer(h)
+        
+        # Output
+        noise_pred = self.output_projection(h)
+        return noise_pred
+    
+    def add_noise(self, x: torch.Tensor, noise: torch.Tensor, t: torch.Tensor) -> torch.Tensor:
+        """Add noise to clean parameters."""
+        sqrt_alpha_cumprod = self.alphas_cumprod[t].sqrt()
+        sqrt_one_minus_alpha_cumprod = (1 - self.alphas_cumprod[t]).sqrt()
+        
+        return sqrt_alpha_cumprod.view(-1, 1) * x + sqrt_one_minus_alpha_cumprod.view(-1, 1) * noise
+    
+    def sample(self, condition: torch.Tensor, num_samples: int = 1) -> torch.Tensor:
+        """Sample parameters using DDPM sampling."""
+        device = condition.device
+        batch_size = condition.size(0)
+        
+        # Start from pure noise
+        x = torch.randn(batch_size * num_samples, self.param_dim, device=device)
+        condition_expanded = condition.repeat_interleave(num_samples, dim=0)
+        
+        # Reverse diffusion process
+        for t in reversed(range(self.num_timesteps)):
+            t_tensor = torch.full((batch_size * num_samples,), t, device=device)
+            
+            with torch.no_grad():
+                noise_pred = self.forward(x, t_tensor, condition_expanded)
+            
+            # DDPM sampling step
+            alpha = self.alphas[t]
+            alpha_cumprod = self.alphas_cumprod[t]
+            beta = self.betas[t]
+            
+            # Compute x_{t-1}
+            x = (x - beta / (1 - alpha_cumprod).sqrt() * noise_pred) / alpha.sqrt()
+            
+            # Add noise (except for final step)
+            if t > 0:
+                noise = torch.randn_like(x)
+                x = x + (beta.sqrt() * noise)
+        
+        return x.view(batch_size, num_samples, self.param_dim)
+
+
+class PhysicsInformedDiffusion(DiffusionModel):
+    """Physics-informed diffusion model with RF constraints."""
+    
+    def __init__(self, *args, physics_weight: float = 0.1, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.physics_weight = physics_weight
+        
+    def physics_loss(self, params: torch.Tensor, condition: torch.Tensor) -> torch.Tensor:
+        """Compute physics-based loss terms."""
+        # Extract circuit parameters (this would be domain-specific)
+        # For demo: assume first few dims are R, L, C values
+        R = params[:, 0].abs() + 1e-6  # Resistance > 0
+        L = params[:, 1].abs() + 1e-9  # Inductance > 0  
+        C = params[:, 2].abs() + 1e-12 # Capacitance > 0
+        
+        # Extract frequency from condition
+        freq = condition[:, 0] * 1e11  # Scale to actual frequency
+        omega = 2 * math.pi * freq
+        
+        # RF physics constraints
+        # 1. Resonant frequency constraint
+        f_res = 1 / (2 * math.pi * torch.sqrt(L * C))
+        resonance_loss = F.mse_loss(f_res, freq)
+        
+        # 2. Quality factor constraint (should be reasonable)
+        Q = torch.sqrt(L / C) / R
+        Q_target = 10.0  # Target Q factor
+        q_loss = F.mse_loss(Q, torch.full_like(Q, Q_target))
+        
+        # 3. Impedance matching (50 ohm)
+        Z_char = torch.sqrt(L / C)
+        impedance_loss = F.mse_loss(Z_char, torch.full_like(Z_char, 50.0))
+        
+        return resonance_loss + q_loss + impedance_loss
+    
+    def forward(self, x: torch.Tensor, t: torch.Tensor, condition: torch.Tensor) -> Dict[str, torch.Tensor]:
+        """Forward with physics loss."""
+        noise_pred = super().forward(x, t, condition)
+        
+        # Compute physics loss on clean parameters (x_0 estimate)
+        alpha_cumprod = self.alphas_cumprod[t[0]]  # Assume same timestep for batch
+        x0_pred = (x - (1 - alpha_cumprod).sqrt() * noise_pred) / alpha_cumprod.sqrt()
+        physics_loss = self.physics_loss(x0_pred, condition)
+        
+        return {
+            'noise_pred': noise_pred,
+            'physics_loss': physics_loss,
+            'x0_pred': x0_pred
+        }
     
     def generate(
         self, 
