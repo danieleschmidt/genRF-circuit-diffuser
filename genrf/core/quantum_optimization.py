@@ -48,6 +48,165 @@ class QUBOFormulation:
     """
     
     # QUBO matrix: Q[i][j] represents interaction between variables i and j
+    Q: torch.Tensor
+    linear_terms: torch.Tensor
+    constant: float = 0.0
+    variable_names: List[str] = field(default_factory=list)
+    
+    def energy(self, x: torch.Tensor) -> torch.Tensor:
+        """Compute QUBO energy for binary variable assignment."""
+        quadratic_term = torch.sum(x.unsqueeze(1) * self.Q * x.unsqueeze(0), dim=(-1, -2))
+        linear_term = torch.sum(self.linear_terms * x, dim=-1)
+        return quadratic_term + linear_term + self.constant
+
+
+class QuantumAnnealer:
+    """Quantum-inspired annealer for discrete optimization."""
+    
+    def __init__(
+        self,
+        num_qubits: int,
+        temperature_schedule: str = "linear",
+        num_sweeps: int = 1000,
+        beta_range: Tuple[float, float] = (0.1, 10.0)
+    ):
+        self.num_qubits = num_qubits
+        self.temperature_schedule = temperature_schedule
+        self.num_sweeps = num_sweeps
+        self.beta_range = beta_range
+        
+        logger.info(f"Quantum annealer initialized with {num_qubits} qubits")
+    
+    def anneal(self, qubo: QUBOFormulation, num_runs: int = 10) -> Dict[str, Any]:
+        """Run quantum annealing on QUBO problem."""
+        device = qubo.Q.device
+        best_energy = float('inf')
+        best_solution = None
+        all_solutions = []
+        
+        for run in range(num_runs):
+            # Initialize random solution
+            x = torch.randint(0, 2, (self.num_qubits,), device=device, dtype=torch.float)
+            
+            # Annealing schedule
+            for sweep in range(self.num_sweeps):
+                beta = self._get_beta(sweep)
+                
+                # Randomly select qubit to flip
+                qubit_idx = torch.randint(0, self.num_qubits, (1,)).item()
+                
+                # Compute energy change from flipping this qubit
+                x_new = x.clone()
+                x_new[qubit_idx] = 1 - x_new[qubit_idx]
+                
+                delta_E = qubo.energy(x_new) - qubo.energy(x)
+                
+                # Metropolis acceptance criterion
+                if delta_E < 0 or torch.rand(1) < torch.exp(-beta * delta_E):
+                    x = x_new
+            
+            # Record final solution
+            final_energy = qubo.energy(x).item()
+            all_solutions.append({
+                'solution': x.clone(),
+                'energy': final_energy
+            })
+            
+            if final_energy < best_energy:
+                best_energy = final_energy
+                best_solution = x.clone()
+        
+        return {
+            'best_solution': best_solution,
+            'best_energy': best_energy,
+            'all_solutions': all_solutions,
+            'success_probability': sum(1 for s in all_solutions if s['energy'] <= best_energy + 1e-6) / num_runs
+        }
+    
+    def _get_beta(self, sweep: int) -> float:
+        """Get inverse temperature for current sweep."""
+        progress = sweep / self.num_sweeps
+        
+        if self.temperature_schedule == "linear":
+            beta = self.beta_range[0] + progress * (self.beta_range[1] - self.beta_range[0])
+        elif self.temperature_schedule == "exponential":
+            beta = self.beta_range[0] * (self.beta_range[1] / self.beta_range[0]) ** progress
+        else:
+            raise ValueError(f"Unknown temperature schedule: {self.temperature_schedule}")
+        
+        return beta
+
+
+class RFCircuitQUBOFormulator:
+    """Formulate RF circuit optimization as QUBO problems."""
+    
+    def __init__(self):
+        self.component_types = ['R', 'L', 'C', 'transistor', 'inductor']
+        self.topology_templates = ['common_source', 'cascode', 'differential']
+    
+    def formulate_topology_selection(self, design_spec: DesignSpec, max_components: int = 10) -> QUBOFormulation:
+        """Formulate topology selection as QUBO problem."""
+        # Each qubit represents presence/absence of a component
+        num_qubits = len(self.component_types) * max_components
+        
+        # Initialize QUBO matrix
+        Q = torch.zeros(num_qubits, num_qubits)
+        linear_terms = torch.zeros(num_qubits)
+        
+        # Add topology constraints
+        # 1. Prefer certain component combinations
+        for i in range(max_components):
+            for j in range(len(self.component_types)):
+                qubit_idx = i * len(self.component_types) + j
+                
+                # Bias towards essential components for given circuit type
+                if design_spec.circuit_type == "LNA":
+                    if self.component_types[j] in ['transistor', 'inductor']:
+                        linear_terms[qubit_idx] = -1.0  # Encourage these components
+                    elif self.component_types[j] == 'R':
+                        linear_terms[qubit_idx] = 0.1   # Slight penalty
+        
+        # 2. Component interaction penalties/bonuses
+        for i in range(num_qubits):
+            for j in range(i + 1, num_qubits):
+                comp_type_i = self.component_types[i % len(self.component_types)]
+                comp_type_j = self.component_types[j % len(self.component_types)]
+                
+                # Encourage L-C combinations (resonant circuits)
+                if (comp_type_i == 'L' and comp_type_j == 'C') or (comp_type_i == 'C' and comp_type_j == 'L'):
+                    Q[i, j] = -0.5
+                
+                # Discourage too many resistors
+                if comp_type_i == 'R' and comp_type_j == 'R':
+                    Q[i, j] = 0.3
+        
+        variable_names = [f"{comp}_{i}" for i in range(max_components) for comp in self.component_types]
+        
+        return QUBOFormulation(
+            Q=Q,
+            linear_terms=linear_terms,
+            variable_names=variable_names
+        )
+    
+    def interpret_solution(self, solution: torch.Tensor, variable_names: List[str]) -> Dict[str, Any]:
+        """Interpret QUBO solution as circuit topology."""
+        selected_components = []
+        
+        for i, (var_name, selected) in enumerate(zip(variable_names, solution)):
+            if selected.item() > 0.5:  # Binary threshold
+                selected_components.append(var_name)
+        
+        # Group by component type
+        topology = {comp_type: [] for comp_type in self.component_types}
+        for comp in selected_components:
+            comp_type = comp.split('_')[0]
+            topology[comp_type].append(comp)
+        
+        return {
+            'selected_components': selected_components,
+            'topology': topology,
+            'component_count': len(selected_components)
+        }
     q_matrix: np.ndarray
     
     # Variable mappings
