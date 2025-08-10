@@ -91,9 +91,9 @@ class ResearchInnovationDemo:
         
         # Generate samples
         logger.info("Generating baseline samples...")
-        baseline_samples = baseline_diffusion.sample(condition, num_samples=5)
+        baseline_samples = baseline_diffusion.sample(condition, num_inference_steps=50)
         
-        logger.info("Generating physics-informed samples...")
+        logger.info("Generating physics-informed samples...")  
         physics_samples = physics_diffusion.sample(condition, num_samples=5)
         
         # Evaluate physics constraints
@@ -266,7 +266,7 @@ class ResearchInnovationDemo:
             start_time = time.time()
             
             # Generate samples at this scale
-            samples = model.sample(current_condition, num_samples=3)
+            samples = model.sample(current_condition, num_inference_steps=50)
             scale_mean = samples.mean(dim=1)  # Average across samples
             
             generation_time = time.time() - start_time
