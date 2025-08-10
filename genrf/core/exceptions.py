@@ -102,3 +102,12 @@ class ConfigurationError(GenRFError):
         super().__init__(message, error_code="CONFIG_ERROR", **kwargs)
         if config_section:
             self.details['config_section'] = config_section
+
+
+class SecurityError(GenRFError):
+    """Exception raised for security related errors."""
+    
+    def __init__(self, message: str, security_issue: Optional[str] = None, **kwargs):
+        super().__init__(message, error_code="SECURITY_ERROR", **kwargs)
+        if security_issue:
+            self.details['security_issue'] = security_issue
