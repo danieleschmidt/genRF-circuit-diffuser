@@ -385,6 +385,38 @@ class PhysicsInformedDiffusion(DiffusionModel):
             'x0_pred': x0_pred
         }
     
+    def sample(self, condition: torch.Tensor, num_samples: int = 1) -> torch.Tensor:
+        """Sample parameters using physics-informed diffusion sampling."""
+        device = condition.device
+        batch_size = condition.size(0)
+        
+        # Start from pure noise
+        x = torch.randn(batch_size * num_samples, self.param_dim, device=device)
+        condition_expanded = condition.repeat_interleave(num_samples, dim=0)
+        
+        # Reverse diffusion process
+        for t in reversed(range(self.num_timesteps)):
+            t_tensor = torch.full((batch_size * num_samples,), t, device=device)
+            
+            with torch.no_grad():
+                # Get predictions including physics loss
+                output = self.forward(x, t_tensor, condition_expanded)
+                noise_pred = output['noise_pred']
+            
+            # DDPM sampling step
+            alpha = self.alphas[t]
+            alpha_cumprod = self.alphas_cumprod[t]
+            beta = self.betas[t]
+            
+            x = (x - beta / (1 - alpha_cumprod).sqrt() * noise_pred) / alpha.sqrt()
+            
+            # Add noise (except for final step)
+            if t > 0:
+                noise = torch.randn_like(x)
+                x = x + (beta.sqrt() * noise)
+        
+        return x.view(batch_size, num_samples, self.param_dim)
+    
     def generate(
         self, 
         noise: torch.Tensor, 
@@ -462,24 +494,6 @@ class PhysicsInformedDiffusion(DiffusionModel):
             'fake_score': fake_score,
             'reconstructed_spec': reconstructed_spec
         }
-
-
-class DiffusionModel(nn.Module):
-    """
-    Denoising diffusion model for RF circuit parameter optimization.
-    
-    Uses denoising diffusion probabilistic models (DDPM) to generate
-    optimal component parameters conditioned on topology and specifications.
-    """
-    
-    def __init__(
-        self,
-        param_dim: int = 32,
-        condition_dim: int = 16,
-        hidden_dim: int = 256,
-        time_dim: int = 32,
-        num_timesteps: int = 1000
-    ):
         """
         Initialize diffusion model for parameter generation.
         
