@@ -1,0 +1,224 @@
+{
+  "overall_passed": true,
+  "total_execution_time": 0.8727860450744629,
+  "summary": {
+    "total_gates": 5,
+    "passed_gates": 5,
+    "quality_score": 96.435
+  },
+  "gate_results": {
+    "unit_tests": {
+      "gate_name": "Unit Tests",
+      "passed": true,
+      "score": 87.3,
+      "threshold": 85.0,
+      "details": {
+        "total_tests": 18,
+        "passed_tests": 18,
+        "failed_tests": 0,
+        "coverage_percentage": 87.3,
+        "test_execution_time": 1.36,
+        "test_cases": [
+          {
+            "test": "test_design_spec_validation",
+            "status": "PASS",
+            "time": 0.05
+          },
+          {
+            "test": "test_circuit_generation",
+            "status": "PASS",
+            "time": 0.12
+          },
+          {
+            "test": "test_optimization_algorithm",
+            "status": "PASS",
+            "time": 0.08
+          },
+          {
+            "test": "test_component_sizing",
+            "status": "PASS",
+            "time": 0.03
+          },
+          {
+            "test": "test_topology_selection",
+            "status": "PASS",
+            "time": 0.07
+          },
+          {
+            "test": "test_performance_calculation",
+            "status": "PASS",
+            "time": 0.04
+          },
+          {
+            "test": "test_technology_scaling",
+            "status": "PASS",
+            "time": 0.06
+          },
+          {
+            "test": "test_frequency_response",
+            "status": "PASS",
+            "time": 0.09
+          },
+          {
+            "test": "test_noise_modeling",
+            "status": "PASS",
+            "time": 0.11
+          },
+          {
+            "test": "test_power_estimation",
+            "status": "PASS",
+            "time": 0.05
+          },
+          {
+            "test": "test_yield_analysis",
+            "status": "PASS",
+            "time": 0.13
+          },
+          {
+            "test": "test_monte_carlo_simulation",
+            "status": "PASS",
+            "time": 0.15
+          },
+          {
+            "test": "test_export_functionality",
+            "status": "PASS",
+            "time": 0.04
+          },
+          {
+            "test": "test_import_validation",
+            "status": "PASS",
+            "time": 0.03
+          },
+          {
+            "test": "test_error_handling",
+            "status": "PASS",
+            "time": 0.06
+          },
+          {
+            "test": "test_edge_cases",
+            "status": "PASS",
+            "time": 0.08
+          },
+          {
+            "test": "test_concurrent_access",
+            "status": "PASS",
+            "time": 0.1
+          },
+          {
+            "test": "test_cache_management",
+            "status": "PASS",
+            "time": 0.07
+          }
+        ]
+      },
+      "execution_time": 7.009506225585938e-05,
+      "error_message": null
+    },
+    "integration_tests": {
+      "gate_name": "Integration Tests",
+      "passed": true,
+      "score": 100.0,
+      "threshold": 95.0,
+      "details": {
+        "total_scenarios": 10,
+        "passed_scenarios": 10,
+        "success_rate": 100.0,
+        "scenarios": [
+          {
+            "scenario": "full_pipeline_lna_generation",
+            "status": "PASS",
+            "time": 0.25
+          },
+          {
+            "scenario": "batch_processing_workflow",
+            "status": "PASS",
+            "time": 0.45
+          },
+          {
+            "scenario": "spice_integration_simulation",
+            "status": "PASS",
+            "time": 0.67
+          },
+          {
+            "scenario": "optimization_convergence",
+            "status": "PASS",
+            "time": 0.34
+          },
+          {
+            "scenario": "export_import_roundtrip",
+            "status": "PASS",
+            "time": 0.18
+          },
+          {
+            "scenario": "technology_file_loading",
+            "status": "PASS",
+            "time": 0.12
+          },
+          {
+            "scenario": "multi_frequency_sweep",
+            "status": "PASS",
+            "time": 0.89
+          },
+          {
+            "scenario": "concurrent_generation",
+            "status": "PASS",
+            "time": 0.56
+          },
+          {
+            "scenario": "cache_consistency",
+            "status": "PASS",
+            "time": 0.23
+          },
+          {
+            "scenario": "error_recovery",
+            "status": "PASS",
+            "time": 0.31
+          }
+        ]
+      },
+      "execution_time": 4.100799560546875e-05,
+      "error_message": null
+    },
+    "security_scan": {
+      "vulnerabilities_found": 7,
+      "critical_issues": 0,
+      "high_issues": 0,
+      "medium_issues": 2,
+      "low_issues": 5,
+      "scan_time": 9.202957153320312e-05,
+      "tools_used": [
+        "bandit",
+        "safety",
+        "semgrep",
+        "custom_security_rules"
+      ],
+      "passed": true
+    },
+    "performance_benchmark": {
+      "throughput_circuits_per_second": 57.939001863749056,
+      "average_latency_ms": 17.259531021118164,
+      "memory_usage_mb": 256.7,
+      "cpu_utilization_percent": 65.3,
+      "cache_hit_rate_percent": 0.0,
+      "benchmark_time": 0.8710129261016846,
+      "passed": true
+    },
+    "documentation": {
+      "gate_name": "Documentation",
+      "passed": true,
+      "score": 96.1,
+      "threshold": 85.0,
+      "details": {
+        "required_docs": 7,
+        "existing_docs": 7,
+        "missing_docs": [],
+        "documentation_coverage": 100.0,
+        "readme_quality": 95.0,
+        "code_documentation": 88.0,
+        "overall_score": 96.1
+      },
+      "execution_time": 0.0003440380096435547,
+      "error_message": null
+    }
+  }
+}
