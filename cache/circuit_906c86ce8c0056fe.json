@@ -1,0 +1,41 @@
+{
+  "design_spec": {
+    "circuit_type": "PA",
+    "frequency": 60000000000.0,
+    "gain_min": 20,
+    "nf_max": 5.0,
+    "power_max": 0.1,
+    "technology": "GaN"
+  },
+  "topology": "Class E",
+  "components": {
+    "robustness": {
+      "process_corners": [
+        "TT",
+        "FF",
+        "SS",
+        "FS",
+        "SF"
+      ],
+      "temperature_range": [
+        -40,
+        125
+      ],
+      "supply_tolerance": 0.1,
+      "yield_target": 0.95
+    }
+  },
+  "performance": {
+    "gain_db": 24.125019351981,
+    "noise_figure_db": 2.7115467347866664,
+    "power_consumption_w": 0.06825087955107358,
+    "input_return_loss_db": -17.232107381488227,
+    "output_return_loss_db": -17.8917697133121,
+    "stability_factor": 1.5383497437114557,
+    "bandwidth_hz": 6000000000.0,
+    "yield_estimate": 0.9713743654163877
+  },
+  "generation_time": 0.00030612945556640625,
+  "validation_status": "PASSED",
+  "security_hash": "906c86ce8c0056fe"
+}

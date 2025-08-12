@@ -1,0 +1,41 @@
+{
+  "design_spec": {
+    "circuit_type": "Mixer",
+    "frequency": 28000000000.0,
+    "gain_min": 10,
+    "nf_max": 8.0,
+    "power_max": 0.05,
+    "technology": "TSMC28nm"
+  },
+  "topology": "Passive Mixer",
+  "components": {
+    "robustness": {
+      "process_corners": [
+        "TT",
+        "FF",
+        "SS",
+        "FS",
+        "SF"
+      ],
+      "temperature_range": [
+        -40,
+        125
+      ],
+      "supply_tolerance": 0.1,
+      "yield_target": 0.95
+    }
+  },
+  "performance": {
+    "gain_db": 13.962567763842204,
+    "noise_figure_db": 4.904362789875015,
+    "power_consumption_w": 0.03412543977553679,
+    "input_return_loss_db": -17.232107381488227,
+    "output_return_loss_db": -17.8917697133121,
+    "stability_factor": 1.5383497437114557,
+    "bandwidth_hz": 2800000000.0,
+    "yield_estimate": 0.9713743654163877
+  },
+  "generation_time": 0.00031113624572753906,
+  "validation_status": "PASSED",
+  "security_hash": "71cf35d1318908f6"
+}
