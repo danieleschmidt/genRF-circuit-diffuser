@@ -1,0 +1,27 @@
+{
+  "circuit_id": "a2fde1820d6a",
+  "circuit_type": "LNA",
+  "performance": {
+    "gain": 23.047060742025828,
+    "noise_figure": 0.8930078597045958,
+    "power": 0.001760864049707458
+  },
+  "components": {
+    "transistor_M1": {
+      "type": "NMOS",
+      "W": 0.0001,
+      "L": 6.5e-08
+    },
+    "inductor_L1": {
+      "value": 2.5e-09,
+      "Q": 15
+    },
+    "capacitor_C1": {
+      "value": 1e-12
+    },
+    "resistor_R1": {
+      "value": 50.0
+    }
+  },
+  "netlist": "* Low Noise Amplifier\n.subckt LNA in out vdd gnd\nM1 out in gnd gnd nmos w=0.0001 l=6.5e-08\nL1 vdd out 2.5e-09\nC1 in gnd 1e-12\nR1 out gnd 50.0\n.ends LNA\n.end"
+}

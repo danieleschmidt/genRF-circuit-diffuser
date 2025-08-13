@@ -1,0 +1,20 @@
+{
+  "apiVersion": "v1",
+  "kind": "Service",
+  "metadata": {
+    "name": "genrf-service",
+    "namespace": "genrf-staging"
+  },
+  "spec": {
+    "selector": {
+      "app": "genrf-circuit-diffuser"
+    },
+    "ports": [
+      {
+        "port": 80,
+        "targetPort": 8000
+      }
+    ],
+    "type": "LoadBalancer"
+  }
+}

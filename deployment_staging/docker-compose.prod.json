@@ -1,0 +1,92 @@
+{
+  "version": "3.8",
+  "services": {
+    "genrf-app": {
+      "build": {
+        "context": ".",
+        "dockerfile": "Dockerfile.prod"
+      },
+      "ports": [
+        "8000:8000"
+      ],
+      "environment": {
+        "ENVIRONMENT": "staging",
+        "LOG_LEVEL": "DEBUG",
+        "WORKERS": "4",
+        "REDIS_URL": "${redis.endpoint}",
+        "DATABASE_URL": "${postgres.connection_string}",
+        "CACHE_SIZE": "1000",
+        "MAX_BATCH_SIZE": "50",
+        "ENABLE_METRICS": "true",
+        "ENABLE_TRACING": "true"
+      },
+      "depends_on": [
+        "postgres",
+        "redis"
+      ],
+      "restart": "unless-stopped",
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:8000/health"
+        ],
+        "interval": "30s",
+        "timeout": "10s",
+        "retries": 3,
+        "start_period": "60s"
+      }
+    },
+    "postgres": {
+      "image": "postgres:14",
+      "environment": {
+        "POSTGRES_DB": "genrf",
+        "POSTGRES_USER": "genrf",
+        "POSTGRES_PASSWORD": "genrf_password"
+      },
+      "volumes": [
+        "postgres_data:/var/lib/postgresql/data"
+      ],
+      "restart": "unless-stopped"
+    },
+    "redis": {
+      "image": "redis:7-alpine",
+      "command": "redis-server --appendonly yes",
+      "volumes": [
+        "redis_data:/data"
+      ],
+      "restart": "unless-stopped"
+    },
+    "prometheus": {
+      "image": "prom/prometheus:latest",
+      "ports": [
+        "9090:9090"
+      ],
+      "volumes": [
+        "./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml",
+        "prometheus_data:/prometheus"
+      ],
+      "restart": "unless-stopped"
+    },
+    "grafana": {
+      "image": "grafana/grafana:latest",
+      "ports": [
+        "3000:3000"
+      ],
+      "environment": {
+        "GF_SECURITY_ADMIN_PASSWORD": "admin"
+      },
+      "volumes": [
+        "grafana_data:/var/lib/grafana"
+      ],
+      "restart": "unless-stopped"
+    }
+  },
+  "volumes": {
+    "postgres_data": {},
+    "redis_data": {},
+    "prometheus_data": {},
+    "grafana_data": {}
+  }
+}

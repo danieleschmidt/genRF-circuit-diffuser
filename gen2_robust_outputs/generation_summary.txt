@@ -1,0 +1,37 @@
+🛡️  GenRF Robust Circuit Generation Summary Report
+================================================================
+
+📊 Overall Statistics:
+- Total Circuits Generated: 3
+- Average Gain: 10.24 dB
+- Average Noise Figure: -25.26 dB  
+- Average Power: 34.34 mW
+- Average Generation Time: 0.54 ms
+
+📈 Circuit Type Distribution:
+- LNA: 1 (33.3%)
+- MIXER: 1 (33.3%)
+- VCO: 1 (33.3%)
+
+🔧 Individual Circuit Details:
+
+Circuit 1: 8d8ec011fdf91a3f
+  Type: LNA
+  Performance: Gain=21.8dB, NF=1.17dB, Power=1.0mW
+  Generation Time: 0.6ms
+  Validation Level: strict
+  Warnings: 0
+
+Circuit 2: 15879bbe2d072342
+  Type: MIXER
+  Performance: Gain=8.9dB, NF=8.64dB, Power=97.9mW
+  Generation Time: 0.4ms
+  Validation Level: strict
+  Warnings: 0
+
+Circuit 3: a06b8de9cdf970f0
+  Type: VCO
+  Performance: Gain=0.0dB, NF=-85.60dB, Power=4.1mW
+  Generation Time: 0.6ms
+  Validation Level: strict
+  Warnings: 0

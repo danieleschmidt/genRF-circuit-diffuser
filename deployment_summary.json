@@ -1,0 +1,45 @@
+{
+  "environments": [
+    {
+      "environment": "staging",
+      "cloud_provider": "kubernetes",
+      "region": "us-east-1",
+      "replicas": 2,
+      "features": {
+        "auto_scaling": true,
+        "monitoring": true,
+        "backup": true,
+        "disaster_recovery": false
+      },
+      "exported_files": 10
+    },
+    {
+      "environment": "production",
+      "cloud_provider": "aws",
+      "region": "us-east-1",
+      "replicas": 5,
+      "features": {
+        "auto_scaling": true,
+        "monitoring": true,
+        "backup": true,
+        "disaster_recovery": true
+      },
+      "exported_files": 7
+    }
+  ],
+  "features": {
+    "multi_cloud": true,
+    "auto_scaling": true,
+    "monitoring": true,
+    "security": true,
+    "disaster_recovery": true,
+    "ci_cd": true
+  },
+  "operational_excellence": {
+    "health_checks": true,
+    "logging": true,
+    "metrics": true,
+    "alerting": true,
+    "runbooks": true
+  }
+}

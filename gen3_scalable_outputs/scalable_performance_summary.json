@@ -1,0 +1,72 @@
+{
+  "generation3_results": {
+    "single_generation": {
+      "circuit_id": "98e2bdd795b57e605e21",
+      "performance": {
+        "fom": 1.3210033059605777,
+        "efficiency": 1321.0033059605776,
+        "frequency_ghz": 5.8
+      },
+      "time_ms": 0.8814334869384766
+    },
+    "batch_generation": {
+      "total_circuits": 24,
+      "successful_circuits": 24,
+      "throughput_cps": 3257.6064205041907,
+      "total_time_s": 0.007367372512817383
+    },
+    "optimization": {
+      "total_evaluations": 50,
+      "pareto_size": 12,
+      "optimization_time_s": 0.01854705810546875,
+      "best_score": 36.87305409519633
+    },
+    "system_performance": {
+      "total_generations": 25,
+      "successful_generations": 25,
+      "failed_generations": 0,
+      "total_time": 0.036598920822143555,
+      "min_time": 0.0003879070281982422,
+      "max_time": 0.0027587413787841797,
+      "throughput": 811.742119279123,
+      "cache_hits": 0,
+      "cache_misses": 25,
+      "memory_usage_mb": 24.99609375,
+      "cpu_usage_percent": 0.0,
+      "concurrent_workers": 1,
+      "peak_concurrent_workers": 8,
+      "batch_generations": 24,
+      "optimization_scores": [
+        0.6020303879678613,
+        0.65686293589925,
+        0.6582075387046836,
+        0.6288677636883905,
+        0.6038823142232969,
+        0.5473714191724851,
+        0.43873440805678166,
+        0.1970644279787619,
+        0.19846670812249542,
+        0.1997522165999547,
+        0.28345436615437397,
+        0.22059790822234557,
+        0.17394537557814793,
+        0.3259783860050059,
+        0.3592259577096335,
+        0.25529335248561175,
+        0.3351640470184602,
+        0.1819813292133553,
+        0.47193376188976094,
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ],
+      "success_rate": 1.0,
+      "avg_generation_time": 0.0014639568328857421,
+      "cache_hit_rate": 0.0,
+      "avg_optimization_score": 0.3735525841876262
+    }
+  }
+}
