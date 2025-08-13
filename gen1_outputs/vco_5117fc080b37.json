@@ -1,0 +1,15 @@
+{
+  "circuit_id": "5117fc080b37",
+  "circuit_type": "VCO",
+  "performance": {
+    "gain": 5.890509980576162,
+    "noise_figure": 5.451784390693002,
+    "power": 0.048252277636482974
+  },
+  "components": {
+    "generic": {
+      "value": 1
+    }
+  },
+  "netlist": "* Generic circuit netlist\n.end"
+}

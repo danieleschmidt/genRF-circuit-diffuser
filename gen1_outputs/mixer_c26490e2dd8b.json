@@ -1,0 +1,29 @@
+{
+  "circuit_id": "c26490e2dd8b",
+  "circuit_type": "MIXER",
+  "performance": {
+    "gain": 6.30064491254112,
+    "noise_figure": 9.8402644169772,
+    "power": 0.021739282036193065
+  },
+  "components": {
+    "transistor_M1": {
+      "type": "NMOS",
+      "W": 5e-05,
+      "L": 6.5e-08
+    },
+    "transistor_M2": {
+      "type": "NMOS",
+      "W": 5e-05,
+      "L": 6.5e-08
+    },
+    "inductor_L1": {
+      "value": 1.2e-09,
+      "Q": 12
+    },
+    "capacitor_C1": {
+      "value": 5e-13
+    }
+  },
+  "netlist": "* Gilbert Cell Mixer\n.subckt MIXER rf_in lo_in if_out vdd gnd\nM1 if_out rf_in n1 gnd nmos w=5e-05 l=6.5e-08\nM2 n1 lo_in gnd gnd nmos w=5e-05 l=6.5e-08\nL1 vdd if_out 1.2e-09\nC1 if_out gnd 5e-13\n.ends MIXER\n.end"
+}

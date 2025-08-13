@@ -1,0 +1,76 @@
+{
+  "apiVersion": "apps/v1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "genrf-app",
+    "namespace": "genrf-staging",
+    "labels": {
+      "app": "genrf-circuit-diffuser",
+      "environment": "staging"
+    }
+  },
+  "spec": {
+    "replicas": 2,
+    "selector": {
+      "matchLabels": {
+        "app": "genrf-circuit-diffuser"
+      }
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "genrf-circuit-diffuser"
+        }
+      },
+      "spec": {
+        "containers": [
+          {
+            "name": "genrf-app",
+            "image": "genrf/circuit-diffuser:latest",
+            "ports": [
+              {
+                "containerPort": 8000
+              }
+            ],
+            "resources": {
+              "requests": {
+                "memory": "512Mi",
+                "cpu": "250m"
+              },
+              "limits": {
+                "memory": "2Gi",
+                "cpu": "1000m"
+              }
+            },
+            "env": [
+              {
+                "name": "ENVIRONMENT",
+                "value": "staging"
+              },
+              {
+                "name": "LOG_LEVEL",
+                "value": "INFO"
+              }
+            ],
+            "livenessProbe": {
+              "httpGet": {
+                "path": "/health",
+                "port": 8000
+              },
+              "initialDelaySeconds": 30,
+              "periodSeconds": 10
+            },
+            "readinessProbe": {
+              "httpGet": {
+                "path": "/ready",
+                "port": 8000
+              },
+              "initialDelaySeconds": 5,
+              "periodSeconds": 5
+            }
+          }
+        ]
+      }
+    }
+  }
+}

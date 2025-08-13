@@ -1,0 +1,60 @@
+{
+  "circuit_info": {
+    "id": "15879bbe2d072342",
+    "type": "MIXER",
+    "validation_level": "strict"
+  },
+  "performance": {
+    "gain_db": 8.943,
+    "noise_figure_db": 8.639,
+    "power_w": 0.097857,
+    "generation_time_ms": 0.39
+  },
+  "components": {
+    "transistor_M1": {
+      "type": "NMOS",
+      "W": 6e-05,
+      "L": 6.5e-08
+    },
+    "transistor_M2": {
+      "type": "NMOS",
+      "W": 6e-05,
+      "L": 6.5e-08
+    },
+    "transistor_M3": {
+      "type": "NMOS",
+      "W": 3e-05,
+      "L": 6.5e-08
+    },
+    "inductor_L1": {
+      "value": 1e-09,
+      "Q": 15
+    },
+    "capacitor_C1": {
+      "value": 8e-13
+    },
+    "if_load": {
+      "value": 1000.0
+    }
+  },
+  "netlist": "* Enhanced Gilbert Cell Mixer  \n* Technology: SiGe130nm\n* Frequency: 28.00 GHz\n.subckt MIXER_ENHANCED rf_in lo_in if_out vdd gnd\n* RF input stage\nM1 n1 rf_in tail gnd nmos w=6e-05 l=6.5e-08\nM2 n2 rf_in tail gnd nmos w=6e-05 l=6.5e-08\n\n* LO switching stage  \nM3 if_out lo_in n1 gnd nmos w=3e-05 l=6.5e-08\nM4 if_out lo_in_b n2 gnd nmos w=3e-05 l=6.5e-08\n\n* Load and output\nL1 vdd if_out 1e-09\nC1 if_out gnd 8e-13\nRload if_out gnd 1000.0\n\n* Tail current source\nItail tail gnd 4e-3\n\n.ends MIXER_ENHANCED\n.end",
+  "warnings": [],
+  "metadata": {
+    "generation_timestamp": 1755117915.2363796,
+    "specification": {
+      "circuit_type": "MIXER",
+      "frequency": 28000000000.0,
+      "gain_min": null,
+      "nf_max": null,
+      "power_max": null,
+      "technology": "SiGe130nm",
+      "temperature": -20,
+      "voltage_supply": 2.5,
+      "process_corner": "TT"
+    },
+    "temperature_factor": 0.955,
+    "voltage_factor": 1.3888888888888888,
+    "random_seed": 5286074721945945923,
+    "process_corner": "TT"
+  }
+}

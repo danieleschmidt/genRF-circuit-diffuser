@@ -1,0 +1,112 @@
+{
+  "name": "GenRF CI/CD Pipeline",
+  "on": {
+    "push": {
+      "branches": [
+        "main",
+        "develop"
+      ]
+    },
+    "pull_request": {
+      "branches": [
+        "main"
+      ]
+    },
+    "workflow_dispatch": {}
+  },
+  "env": {
+    "DOCKER_REGISTRY": "ghcr.io",
+    "IMAGE_NAME": "genrf-circuit-diffuser"
+  },
+  "jobs": {
+    "test": {
+      "runs-on": "ubuntu-latest",
+      "steps": [
+        {
+          "uses": "actions/checkout@v4"
+        },
+        {
+          "uses": "actions/setup-python@v4",
+          "with": {
+            "python-version": "3.11"
+          }
+        },
+        {
+          "run": "pip install -r requirements.txt"
+        },
+        {
+          "run": "python -m pytest tests/ --cov=genrf --cov-report=xml"
+        },
+        {
+          "run": "python comprehensive_quality_gates_v2.py"
+        },
+        {
+          "uses": "codecov/codecov-action@v3"
+        }
+      ]
+    },
+    "security": {
+      "runs-on": "ubuntu-latest",
+      "steps": [
+        {
+          "uses": "actions/checkout@v4"
+        },
+        {
+          "run": "pip install bandit safety"
+        },
+        {
+          "run": "bandit -r genrf/"
+        },
+        {
+          "run": "safety check"
+        }
+      ]
+    },
+    "build": {
+      "needs": [
+        "test",
+        "security"
+      ],
+      "runs-on": "ubuntu-latest",
+      "permissions": {
+        "contents": "read",
+        "packages": "write"
+      },
+      "steps": [
+        {
+          "uses": "actions/checkout@v4"
+        },
+        {
+          "uses": "docker/login-action@v2"
+        },
+        {
+          "uses": "docker/build-push-action@v4",
+          "with": {
+            "push": true,
+            "tags": "${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          }
+        }
+      ]
+    },
+    "deploy": {
+      "needs": "build",
+      "runs-on": "ubuntu-latest",
+      "environment": "production",
+      "steps": [
+        {
+          "uses": "actions/checkout@v4"
+        },
+        {
+          "uses": "azure/k8s-set-context@v1"
+        },
+        {
+          "uses": "azure/k8s-deploy@v1",
+          "with": {
+            "manifests": "k8s/",
+            "images": "${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,954 @@
+{
+  "metadata": {
+    "deployment_name": "genrf-staging",
+    "version": "1.0.0",
+    "environment": "staging",
+    "cloud_provider": "kubernetes",
+    "region": "us-east-1",
+    "created_timestamp": 1755118409.5714552,
+    "tags": {
+      "project": "genrf-circuit-diffuser",
+      "environment": "staging",
+      "managed_by": "terragon-sdlc",
+      "cost_center": "research-development",
+      "compliance": "gdpr,ccpa,pdpa"
+    }
+  },
+  "infrastructure": {
+    "provider": "kubernetes",
+    "namespace": "genrf-staging",
+    "deployment": {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "genrf-app",
+        "namespace": "genrf-staging",
+        "labels": {
+          "app": "genrf-circuit-diffuser",
+          "environment": "staging"
+        }
+      },
+      "spec": {
+        "replicas": 2,
+        "selector": {
+          "matchLabels": {
+            "app": "genrf-circuit-diffuser"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app": "genrf-circuit-diffuser"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "name": "genrf-app",
+                "image": "genrf/circuit-diffuser:latest",
+                "ports": [
+                  {
+                    "containerPort": 8000
+                  }
+                ],
+                "resources": {
+                  "requests": {
+                    "memory": "512Mi",
+                    "cpu": "250m"
+                  },
+                  "limits": {
+                    "memory": "2Gi",
+                    "cpu": "1000m"
+                  }
+                },
+                "env": [
+                  {
+                    "name": "ENVIRONMENT",
+                    "value": "staging"
+                  },
+                  {
+                    "name": "LOG_LEVEL",
+                    "value": "INFO"
+                  }
+                ],
+                "livenessProbe": {
+                  "httpGet": {
+                    "path": "/health",
+                    "port": 8000
+                  },
+                  "initialDelaySeconds": 30,
+                  "periodSeconds": 10
+                },
+                "readinessProbe": {
+                  "httpGet": {
+                    "path": "/ready",
+                    "port": 8000
+                  },
+                  "initialDelaySeconds": 5,
+                  "periodSeconds": 5
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "service": {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "genrf-service",
+        "namespace": "genrf-staging"
+      },
+      "spec": {
+        "selector": {
+          "app": "genrf-circuit-diffuser"
+        },
+        "ports": [
+          {
+            "port": 80,
+            "targetPort": 8000
+          }
+        ],
+        "type": "LoadBalancer"
+      }
+    },
+    "hpa": {
+      "apiVersion": "autoscaling/v2",
+      "kind": "HorizontalPodAutoscaler",
+      "metadata": {
+        "name": "genrf-hpa",
+        "namespace": "genrf-staging"
+      },
+      "spec": {
+        "scaleTargetRef": {
+          "apiVersion": "apps/v1",
+          "kind": "Deployment",
+          "name": "genrf-app"
+        },
+        "minReplicas": 2,
+        "maxReplicas": 20,
+        "metrics": [
+          {
+            "type": "Resource",
+            "resource": {
+              "name": "cpu",
+              "target": {
+                "type": "Utilization",
+                "averageUtilization": 70
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "application": {
+    "container": {
+      "image": "genrf/circuit-diffuser:latest",
+      "tag": "v1.0.0",
+      "pull_policy": "Always",
+      "ports": [
+        {
+          "name": "http",
+          "port": 8000,
+          "protocol": "TCP"
+        },
+        {
+          "name": "metrics",
+          "port": 9090,
+          "protocol": "TCP"
+        }
+      ],
+      "environment": {
+        "ENVIRONMENT": "staging",
+        "LOG_LEVEL": "DEBUG",
+        "WORKERS": "4",
+        "REDIS_URL": "${redis.endpoint}",
+        "DATABASE_URL": "${postgres.connection_string}",
+        "CACHE_SIZE": "1000",
+        "MAX_BATCH_SIZE": "50",
+        "ENABLE_METRICS": "true",
+        "ENABLE_TRACING": "true"
+      },
+      "resources": {
+        "requests": {
+          "cpu": "250m",
+          "memory": "512Mi"
+        },
+        "limits": {
+          "cpu": "1000m",
+          "memory": "2Gi"
+        }
+      },
+      "health_checks": {
+        "liveness_probe": {
+          "path": "/health",
+          "port": 8000,
+          "initial_delay": 30,
+          "period": 10,
+          "timeout": 5,
+          "failure_threshold": 3
+        },
+        "readiness_probe": {
+          "path": "/ready",
+          "port": 8000,
+          "initial_delay": 5,
+          "period": 5,
+          "timeout": 3,
+          "failure_threshold": 3
+        },
+        "startup_probe": {
+          "path": "/health",
+          "port": 8000,
+          "initial_delay": 10,
+          "period": 10,
+          "timeout": 5,
+          "failure_threshold": 30
+        }
+      }
+    },
+    "scaling": {
+      "horizontal": {
+        "enabled": true,
+        "min_replicas": 1,
+        "max_replicas": 5,
+        "target_cpu_utilization": 70,
+        "target_memory_utilization": 80,
+        "scale_up_policies": [
+          {
+            "type": "Percent",
+            "value": 100,
+            "period_seconds": 60
+          },
+          {
+            "type": "Pods",
+            "value": 2,
+            "period_seconds": 60
+          }
+        ],
+        "scale_down_policies": [
+          {
+            "type": "Percent",
+            "value": 50,
+            "period_seconds": 300
+          },
+          {
+            "type": "Pods",
+            "value": 1,
+            "period_seconds": 300
+          }
+        ]
+      },
+      "vertical": {
+        "enabled": true,
+        "update_mode": "Auto",
+        "resource_policy": {
+          "cpu": {
+            "min": "100m",
+            "max": "4000m"
+          },
+          "memory": {
+            "min": "128Mi",
+            "max": "8Gi"
+          }
+        }
+      }
+    }
+  },
+  "monitoring": {
+    "prometheus": {
+      "enabled": true,
+      "retention": "7d",
+      "storage_size": "10Gi",
+      "scrape_configs": [
+        {
+          "job_name": "genrf-app",
+          "static_configs": [
+            {
+              "targets": [
+                "genrf-service:9090"
+              ]
+            }
+          ],
+          "metrics_path": "/metrics",
+          "scrape_interval": "15s"
+        },
+        {
+          "job_name": "kubernetes-pods",
+          "kubernetes_sd_configs": [
+            {
+              "role": "pod"
+            }
+          ],
+          "relabel_configs": [
+            {
+              "source_labels": [
+                "__meta_kubernetes_pod_annotation_prometheus_io_scrape"
+              ],
+              "action": "keep",
+              "regex": "true"
+            }
+          ]
+        }
+      ]
+    },
+    "grafana": {
+      "enabled": true,
+      "admin_password": "${random_password.grafana_admin.result}",
+      "persistence": {
+        "enabled": true,
+        "size": "10Gi"
+      },
+      "datasources": [
+        {
+          "name": "Prometheus",
+          "type": "prometheus",
+          "url": "http://prometheus:9090",
+          "access": "proxy",
+          "is_default": true
+        },
+        {
+          "name": "Loki",
+          "type": "loki",
+          "url": "http://loki:3100",
+          "access": "proxy"
+        }
+      ],
+      "dashboards": [
+        "genrf-application-metrics",
+        "genrf-infrastructure-metrics",
+        "genrf-business-metrics",
+        "kubernetes-cluster-overview",
+        "application-performance"
+      ]
+    },
+    "alertmanager": {
+      "enabled": true,
+      "config": {
+        "global": {
+          "smtp_smarthost": "${smtp.endpoint}",
+          "smtp_from": "alerts@genrf-staging.com"
+        },
+        "route": {
+          "group_by": [
+            "alertname"
+          ],
+          "group_wait": "30s",
+          "group_interval": "5m",
+          "repeat_interval": "12h",
+          "receiver": "default"
+        },
+        "receivers": [
+          {
+            "name": "default",
+            "email_configs": [
+              {
+                "to": "ops@genrf-staging.com",
+                "subject": "GenRF Alert: {{ .GroupLabels.alertname }}",
+                "body": "{{ range .Alerts }}{{ .Annotations.description }}{{ end }}"
+              }
+            ],
+            "slack_configs": [
+              {
+                "api_url": "${slack.webhook_url}",
+                "channel": "#genrf-staging-alerts",
+                "title": "GenRF Alert",
+                "text": "{{ range .Alerts }}{{ .Annotations.description }}{{ end }}"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "alerts": [
+      {
+        "name": "GenRF High Response Time",
+        "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1",
+        "duration": "5m",
+        "severity": "warning",
+        "description": "GenRF 95th percentile response time is above 1 second"
+      },
+      {
+        "name": "GenRF High Error Rate",
+        "expr": "rate(http_requests_total{status=~\"5..\"}[5m]) / rate(http_requests_total[5m]) > 0.05",
+        "duration": "2m",
+        "severity": "critical",
+        "description": "GenRF error rate is above 5%"
+      },
+      {
+        "name": "GenRF Circuit Generation Failure",
+        "expr": "rate(genrf_circuit_generation_failures_total[5m]) > 0.1",
+        "duration": "1m",
+        "severity": "critical",
+        "description": "GenRF circuit generation failure rate is above 10%"
+      },
+      {
+        "name": "GenRF Low Throughput",
+        "expr": "rate(genrf_circuits_generated_total[5m]) < 10",
+        "duration": "5m",
+        "severity": "warning",
+        "description": "GenRF circuit generation throughput is below 10 circuits/minute"
+      }
+    ],
+    "logging": {
+      "loki": {
+        "enabled": true,
+        "retention_period": "7d",
+        "storage_size": "20Gi"
+      },
+      "promtail": {
+        "enabled": true,
+        "config": {
+          "clients": [
+            {
+              "url": "http://loki:3100/loki/api/v1/push"
+            }
+          ],
+          "scrape_configs": [
+            {
+              "job_name": "kubernetes-pods",
+              "kubernetes_sd_configs": [
+                {
+                  "role": "pod"
+                }
+              ],
+              "pipeline_stages": [
+                {
+                  "docker": {}
+                },
+                {
+                  "match": {
+                    "selector": "{app=\"genrf-circuit-diffuser\"}",
+                    "stages": [
+                      {
+                        "json": {
+                          "expressions": {
+                            "level": "level",
+                            "message": "message"
+                          }
+                        }
+                      },
+                      {
+                        "labels": {
+                          "level": ""
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  },
+  "networking": {
+    "ingress": {
+      "enabled": true,
+      "class": "nginx",
+      "annotations": {
+        "nginx.ingress.kubernetes.io/rate-limit": "1000",
+        "nginx.ingress.kubernetes.io/rate-limit-window": "1m",
+        "nginx.ingress.kubernetes.io/ssl-redirect": "true",
+        "nginx.ingress.kubernetes.io/force-ssl-redirect": "true",
+        "cert-manager.io/cluster-issuer": "letsencrypt-prod"
+      },
+      "hosts": [
+        {
+          "host": "genrf-staging.example.com",
+          "paths": [
+            {
+              "path": "/",
+              "pathType": "Prefix"
+            }
+          ]
+        }
+      ],
+      "tls": [
+        {
+          "secretName": "genrf-staging-tls",
+          "hosts": [
+            "genrf-staging.example.com"
+          ]
+        }
+      ]
+    },
+    "network_policies": [
+      {
+        "name": "genrf-network-policy",
+        "spec": {
+          "podSelector": {
+            "matchLabels": {
+              "app": "genrf-circuit-diffuser"
+            }
+          },
+          "policyTypes": [
+            "Ingress",
+            "Egress"
+          ],
+          "ingress": [
+            {
+              "from": [
+                {
+                  "namespaceSelector": {
+                    "matchLabels": {
+                      "name": "nginx-ingress"
+                    }
+                  }
+                },
+                {
+                  "podSelector": {
+                    "matchLabels": {
+                      "app": "prometheus"
+                    }
+                  }
+                }
+              ],
+              "ports": [
+                {
+                  "protocol": "TCP",
+                  "port": 8000
+                },
+                {
+                  "protocol": "TCP",
+                  "port": 9090
+                }
+              ]
+            }
+          ],
+          "egress": [
+            {
+              "to": [],
+              "ports": [
+                {
+                  "protocol": "TCP",
+                  "port": 53
+                },
+                {
+                  "protocol": "UDP",
+                  "port": 53
+                },
+                {
+                  "protocol": "TCP",
+                  "port": 5432
+                },
+                {
+                  "protocol": "TCP",
+                  "port": 6379
+                },
+                {
+                  "protocol": "TCP",
+                  "port": 443
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "service_mesh": {
+      "enabled": false,
+      "type": "istio",
+      "features": {
+        "mutual_tls": true,
+        "traffic_management": true,
+        "observability": true,
+        "security_policies": true
+      }
+    }
+  },
+  "security": {
+    "rbac": {
+      "service_account": {
+        "name": "genrf-service-account-staging",
+        "annotations": {
+          "eks.amazonaws.com/role-arn": "arn:aws:iam::ACCOUNT:role/genrf-staging-role"
+        }
+      },
+      "cluster_role": {
+        "name": "genrf-cluster-role-staging",
+        "rules": [
+          {
+            "apiGroups": [
+              ""
+            ],
+            "resources": [
+              "configmaps",
+              "secrets"
+            ],
+            "verbs": [
+              "get",
+              "list",
+              "watch"
+            ]
+          },
+          {
+            "apiGroups": [
+              "metrics.k8s.io"
+            ],
+            "resources": [
+              "*"
+            ],
+            "verbs": [
+              "get",
+              "list"
+            ]
+          }
+        ]
+      }
+    },
+    "pod_security": {
+      "security_context": {
+        "run_as_non_root": true,
+        "run_as_user": 1000,
+        "run_as_group": 3000,
+        "fs_group": 2000,
+        "fs_group_change_policy": "OnRootMismatch",
+        "seccomp_profile": {
+          "type": "RuntimeDefault"
+        }
+      },
+      "container_security_context": {
+        "allow_privilege_escalation": false,
+        "read_only_root_filesystem": true,
+        "run_as_non_root": true,
+        "capabilities": {
+          "drop": [
+            "ALL"
+          ],
+          "add": [
+            "NET_BIND_SERVICE"
+          ]
+        }
+      }
+    },
+    "network_security": {
+      "ingress_whitelist": [
+        "10.0.0.0/8",
+        "172.16.0.0/12",
+        "192.168.0.0/16"
+      ],
+      "egress_whitelist": [
+        "0.0.0.0/0"
+      ]
+    },
+    "secrets": {
+      "database": {
+        "name": "genrf-database-secret",
+        "type": "Opaque",
+        "data": {
+          "username": "${base64encode(random_string.db_username.result)}",
+          "password": "${base64encode(random_password.db_password.result)}"
+        }
+      },
+      "redis": {
+        "name": "genrf-redis-secret",
+        "type": "Opaque",
+        "data": {
+          "password": "${base64encode(random_password.redis_password.result)}"
+        }
+      },
+      "jwt": {
+        "name": "genrf-jwt-secret",
+        "type": "Opaque",
+        "data": {
+          "secret_key": "${base64encode(random_password.jwt_secret.result)}"
+        }
+      }
+    },
+    "certificates": {
+      "cluster_issuer": {
+        "name": "letsencrypt-prod",
+        "acme": {
+          "server": "https://acme-v02.api.letsencrypt.org/directory",
+          "email": "certs@genrf-staging.com",
+          "private_key_secret_ref": {
+            "name": "letsencrypt-prod"
+          },
+          "solvers": [
+            {
+              "http01": {
+                "ingress": {
+                  "class": "nginx"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "data": {
+    "database": {
+      "type": "postgresql",
+      "version": "14",
+      "high_availability": false,
+      "backup": {
+        "enabled": true,
+        "schedule": "0 2 * * *",
+        "retention": "7d",
+        "storage_class": "STANDARD"
+      },
+      "connection_pooling": {
+        "enabled": true,
+        "max_connections": 20,
+        "pool_size": 5
+      }
+    },
+    "cache": {
+      "type": "redis",
+      "version": "7.0",
+      "cluster_mode": false,
+      "persistence": {
+        "enabled": true,
+        "storage_class": "ssd",
+        "size": "1Gi"
+      },
+      "backup": {
+        "enabled": true,
+        "schedule": "0 3 * * *",
+        "retention": "7d"
+      }
+    },
+    "object_storage": {
+      "circuit_models": {
+        "bucket": "genrf-models-staging",
+        "versioning": true,
+        "lifecycle": {
+          "transition_to_ia": 30,
+          "transition_to_glacier": 90,
+          "expiration": 365
+        }
+      },
+      "circuit_cache": {
+        "bucket": "genrf-cache-staging",
+        "versioning": false,
+        "lifecycle": {
+          "expiration": 30
+        }
+      },
+      "logs": {
+        "bucket": "genrf-logs-staging",
+        "versioning": false,
+        "lifecycle": {
+          "transition_to_ia": 30,
+          "transition_to_glacier": 90,
+          "expiration": 90
+        }
+      }
+    }
+  },
+  "ci_cd": {
+    "github_actions": {
+      "workflow_file": ".github/workflows/deploy.yml",
+      "workflow": {
+        "name": "GenRF CI/CD Pipeline",
+        "on": {
+          "push": {
+            "branches": [
+              "main",
+              "develop"
+            ]
+          },
+          "pull_request": {
+            "branches": [
+              "main"
+            ]
+          },
+          "workflow_dispatch": {}
+        },
+        "env": {
+          "DOCKER_REGISTRY": "ghcr.io",
+          "IMAGE_NAME": "genrf-circuit-diffuser"
+        },
+        "jobs": {
+          "test": {
+            "runs-on": "ubuntu-latest",
+            "steps": [
+              {
+                "uses": "actions/checkout@v4"
+              },
+              {
+                "uses": "actions/setup-python@v4",
+                "with": {
+                  "python-version": "3.11"
+                }
+              },
+              {
+                "run": "pip install -r requirements.txt"
+              },
+              {
+                "run": "python -m pytest tests/ --cov=genrf --cov-report=xml"
+              },
+              {
+                "run": "python comprehensive_quality_gates_v2.py"
+              },
+              {
+                "uses": "codecov/codecov-action@v3"
+              }
+            ]
+          },
+          "security": {
+            "runs-on": "ubuntu-latest",
+            "steps": [
+              {
+                "uses": "actions/checkout@v4"
+              },
+              {
+                "run": "pip install bandit safety"
+              },
+              {
+                "run": "bandit -r genrf/"
+              },
+              {
+                "run": "safety check"
+              }
+            ]
+          },
+          "build": {
+            "needs": [
+              "test",
+              "security"
+            ],
+            "runs-on": "ubuntu-latest",
+            "permissions": {
+              "contents": "read",
+              "packages": "write"
+            },
+            "steps": [
+              {
+                "uses": "actions/checkout@v4"
+              },
+              {
+                "uses": "docker/login-action@v2"
+              },
+              {
+                "uses": "docker/build-push-action@v4",
+                "with": {
+                  "push": true,
+                  "tags": "${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+                }
+              }
+            ]
+          },
+          "deploy": {
+            "needs": "build",
+            "runs-on": "ubuntu-latest",
+            "environment": "staging",
+            "steps": [
+              {
+                "uses": "actions/checkout@v4"
+              },
+              {
+                "uses": "azure/k8s-set-context@v1"
+              },
+              {
+                "uses": "azure/k8s-deploy@v1",
+                "with": {
+                  "manifests": "k8s/",
+                  "images": "${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "environments": {
+      "staging": {
+        "protection_rules": {
+          "required_reviewers": 1,
+          "wait_timer": 0,
+          "prevent_self_review": true
+        },
+        "secrets": {
+          "KUBE_CONFIG": "${base64encode(kubeconfig)}",
+          "DOCKER_PASSWORD": "${github_token}",
+          "DATABASE_URL": "${database_connection_string}",
+          "REDIS_URL": "${redis_connection_string}"
+        }
+      }
+    }
+  },
+  "operational": {
+    "runbooks": {
+      "deployment": {
+        "title": "GenRF Deployment Procedure",
+        "steps": [
+          "Verify pre-deployment checklist",
+          "Run quality gates validation",
+          "Deploy to staging environment",
+          "Execute smoke tests",
+          "Deploy to production with blue-green strategy",
+          "Monitor key metrics for 15 minutes",
+          "Execute post-deployment validation"
+        ]
+      },
+      "rollback": {
+        "title": "GenRF Rollback Procedure",
+        "steps": [
+          "Identify rollback trigger condition",
+          "Stop traffic to new deployment",
+          "Route traffic to previous version",
+          "Verify application stability",
+          "Update deployment status",
+          "Investigate root cause"
+        ]
+      },
+      "scaling": {
+        "title": "GenRF Scaling Procedure",
+        "steps": [
+          "Monitor current resource utilization",
+          "Determine scaling requirements",
+          "Update HPA configuration if needed",
+          "Scale application replicas",
+          "Verify load distribution",
+          "Monitor performance metrics"
+        ]
+      }
+    },
+    "maintenance": {
+      "scheduled_tasks": [
+        {
+          "name": "Database maintenance",
+          "schedule": "0 4 * * 0",
+          "description": "Vacuum and analyze database tables"
+        },
+        {
+          "name": "Cache cleanup",
+          "schedule": "0 2 * * *",
+          "description": "Clean expired cache entries"
+        },
+        {
+          "name": "Log rotation",
+          "schedule": "0 1 * * *",
+          "description": "Rotate and compress log files"
+        },
+        {
+          "name": "Security scan",
+          "schedule": "0 3 * * 1",
+          "description": "Run security vulnerability scan"
+        }
+      ]
+    },
+    "disaster_recovery": {
+      "enabled": false,
+      "rto": 240,
+      "rpo": 60,
+      "backup_locations": [
+        "us-east-1-backup",
+        null
+      ],
+      "failover_procedure": [
+        "Detect primary region failure",
+        "Activate disaster recovery region",
+        "Restore data from latest backup",
+        "Update DNS to point to DR region",
+        "Verify application functionality",
+        "Communicate status to stakeholders"
+      ]
+    }
+  }
+}
