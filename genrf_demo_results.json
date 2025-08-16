@@ -1,0 +1,58 @@
+{
+  "genrf_demo_results": {
+    "timestamp": "2025-08-16T18:46:03.632155",
+    "total_candidates_generated": 20,
+    "circuits": {
+      "wifi_lna": {
+        "circuit_id": "344076565893",
+        "specification": {
+          "type": "LNA",
+          "name": "WiFi LNA 2.4GHz",
+          "frequency_ghz": 2.4
+        },
+        "performance": {
+          "gain_db": 22.27,
+          "noise_figure_db": 1.49,
+          "power_consumption_w": 0.006115,
+          "s11_db": -18.1,
+          "s22_db": -12.8,
+          "bandwidth_hz": 224709071.0
+        },
+        "parameters": {
+          "input_transistor_width": "3.558e-05",
+          "input_transistor_length": "6.788e-08",
+          "load_inductance": "3.475e-09",
+          "bias_current": "3.009e-03",
+          "coupling_capacitance": "7.628e-12"
+        },
+        "timestamp": "2025-08-16T18:46:03.631460",
+        "meets_specifications": true
+      },
+      "bluetooth_mixer": {
+        "circuit_id": "bfbd9f6b03e0",
+        "specification": {
+          "type": "Mixer",
+          "name": "Bluetooth Mixer",
+          "frequency_ghz": 2.4
+        },
+        "performance": {
+          "gain_db": 13.96,
+          "noise_figure_db": 2.22,
+          "power_consumption_w": 0.002783,
+          "s11_db": -23.3,
+          "s22_db": -12.5,
+          "bandwidth_hz": 872202675.0
+        },
+        "parameters": {
+          "rf_transistor_width": "1.779e-05",
+          "lo_transistor_width": "5.500e-06",
+          "load_resistance": "3.475e+02",
+          "bias_voltage": "7.339e-01",
+          "if_capacitance": "7.391e-11"
+        },
+        "timestamp": "2025-08-16T18:46:03.631889",
+        "meets_specifications": true
+      }
+    }
+  }
+}
