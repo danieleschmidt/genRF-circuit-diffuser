@@ -1,0 +1,25 @@
+{
+  "circuit_id": "513cc7f550ef",
+  "specification": {
+    "type": "LNA",
+    "name": "WiFi LNA 2.4GHz",
+    "frequency_ghz": 2.4
+  },
+  "performance": {
+    "gain_db": 23.67,
+    "noise_figure_db": 1.35,
+    "power_consumption_w": 0.006496,
+    "s11_db": -14.5,
+    "s22_db": -15.8,
+    "bandwidth_hz": 699680440.0
+  },
+  "parameters": {
+    "input_transistor_width": "3.558e-05",
+    "input_transistor_length": "6.788e-08",
+    "load_inductance": "3.475e-09",
+    "bias_current": "3.009e-03",
+    "coupling_capacitance": "7.628e-12"
+  },
+  "timestamp": "2025-08-16T18:46:03.630791",
+  "meets_specifications": true
+}

@@ -1,0 +1,133 @@
+{
+  "genrf_optimized_cicd_report": {
+    "timestamp": "2025-08-16T18:46:03.765876",
+    "execution_time_seconds": 0.59,
+    "overall_status": "PASS",
+    "quality_gates": {
+      "passed": 5,
+      "total": 5,
+      "percentage": 100.0,
+      "threshold": "3/5 required",
+      "details": {
+        "core_functionality": true,
+        "code_quality": true,
+        "performance": true,
+        "security": true,
+        "package_structure": true
+      }
+    },
+    "test_results": {
+      "code_quality": {
+        "status": "PASS",
+        "syntax_errors": 0,
+        "encoding_errors": 0,
+        "missing_files": [],
+        "python_files_analyzed": 50,
+        "total_lines_of_code": 29323,
+        "quality_score": 100
+      },
+      "import_structure": {
+        "status": "PASS",
+        "passed_tests": 3,
+        "total_tests": 3,
+        "details": {
+          "package_structure": {
+            "status": "PASS",
+            "genrf_package_exists": true,
+            "core_package_exists": true
+          },
+          "core_modules": {
+            "status": "PASS",
+            "core_modules_found": 21,
+            "expected_modules_found": 6,
+            "modules": [
+              "cache.py",
+              "circuit_diffuser.py",
+              "concurrent.py",
+              "design_spec.py",
+              "exceptions.py",
+              "export.py",
+              "graph_topology_generation.py",
+              "hierarchical_generation.py",
+              "logging_config.py",
+              "models.py"
+            ]
+          },
+          "init_files": {
+            "status": "PASS",
+            "init_files_found": 1164
+          }
+        }
+      },
+      "lightweight_functionality": {
+        "status": "PASS",
+        "execution_time_seconds": 0.08,
+        "return_code": 0,
+        "success_indicators_found": 3,
+        "output_lines": 109
+      },
+      "performance_benchmarks": {
+        "status": "PASS",
+        "benchmarks": {
+          "file_scan": {
+            "time_seconds": 0.0005660057067871094,
+            "files_scanned": 50
+          },
+          "json_processing": {
+            "time_seconds": 0.00032019615173339844,
+            "objects_processed": 100
+          },
+          "memory_usage": {
+            "test_data_kb": 0.1796875
+          }
+        }
+      },
+      "security_validation": {
+        "status": "WARN",
+        "checks": {
+          "suspicious_patterns": 5,
+          "files_scanned": 27,
+          "scan_scope": "genrf_package_focused"
+        },
+        "issues": [
+          "cli.py: __import__",
+          "models.py: eval(",
+          "neural_architecture_search.py: eval("
+        ]
+      },
+      "documentation_completeness": {
+        "status": "WARN",
+        "doc_files_found": 36,
+        "missing_required_docs": [
+          "LICENSE"
+        ],
+        "readme_quality": {
+          "length_chars": 9557,
+          "has_installation": true,
+          "has_usage": true,
+          "has_features": true,
+          "has_overview": true
+        }
+      }
+    },
+    "performance_metrics": {
+      "demo_execution_time": 0.08269095420837402,
+      "file_scan": {
+        "time_seconds": 0.0005660057067871094,
+        "files_scanned": 50
+      },
+      "json_processing": {
+        "time_seconds": 0.00032019615173339844,
+        "objects_processed": 100
+      },
+      "memory_usage": {
+        "test_data_kb": 0.1796875
+      }
+    },
+    "environment": {
+      "python_version": "3.12.3",
+      "platform": "linux",
+      "test_suite_version": "2.0_optimized"
+    }
+  }
+}

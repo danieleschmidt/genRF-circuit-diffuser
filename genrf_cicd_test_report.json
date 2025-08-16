@@ -1,0 +1,156 @@
+{
+  "genrf_cicd_test_report": {
+    "timestamp": "2025-08-16T18:44:30.910467",
+    "execution_time_seconds": 23.48,
+    "overall_status": "FAIL",
+    "quality_gates": {
+      "passed": 3,
+      "total": 5,
+      "percentage": 60.0,
+      "details": {
+        "core_functionality": true,
+        "code_quality": false,
+        "performance": true,
+        "security": true,
+        "test_coverage": false
+      }
+    },
+    "test_results": {
+      "code_quality": {
+        "status": "FAIL",
+        "error": "'utf-8' codec can't decode byte 0xa4 in position 64: invalid start byte"
+      },
+      "import_structure": {
+        "status": "FAIL",
+        "details": {
+          "basic_imports": {
+            "status": "FAIL",
+            "importable_modules": 0,
+            "total_tested": 3
+          },
+          "core_modules": {
+            "status": "PASS",
+            "core_modules_found": 21,
+            "modules": [
+              "__init__.py",
+              "cache.py",
+              "circuit_diffuser.py",
+              "concurrent.py",
+              "design_spec.py",
+              "exceptions.py",
+              "export.py",
+              "graph_topology_generation.py",
+              "hierarchical_generation.py",
+              "logging_config.py",
+              "models.py",
+              "monitoring.py",
+              "multi_objective_optimization.py",
+              "neural_architecture_search.py",
+              "optimization.py",
+              "performance.py",
+              "physics_informed_diffusion.py",
+              "quantum_optimization.py",
+              "security.py",
+              "simulation.py",
+              "technology.py",
+              "validation.py"
+            ]
+          },
+          "circular_dependencies": {
+            "status": "WARN",
+            "complex_init_files": [
+              "__init__.py",
+              "__init__.py",
+              "__init__.py",
+              "__init__.py",
+              "__init__.py",
+              "__init__.py",
+              "__init__.py",
+              "__init__.py",
+              "__init__.py",
+              "__init__.py",
+              "__init__.py",
+              "__init__.py",
+              "__init__.py",
+              "__init__.py",
+              "__init__.py",
+              "__init__.py",
+              "__init__.py",
+              "__init__.py"
+            ]
+          }
+        }
+      },
+      "lightweight_functionality": {
+        "status": "PASS",
+        "execution_time_seconds": 0.08,
+        "return_code": 0,
+        "success_indicators_found": 3,
+        "output_size_chars": 3936
+      },
+      "performance_benchmarks": {
+        "status": "PASS",
+        "benchmarks": {
+          "file_scan": {
+            "time_seconds": 0.19854068756103516,
+            "files_scanned": 8759
+          },
+          "json_processing": {
+            "time_seconds": 0.002735614776611328,
+            "objects_processed": 1000
+          },
+          "memory_usage": {
+            "test_data_mb": 0.00017547607421875
+          }
+        }
+      },
+      "security_validation": {
+        "status": "WARN",
+        "checks": {
+          "hardcoded_secrets": 178,
+          "executable_python_files": 3,
+          "total_files_scanned": 8759
+        },
+        "issues": [
+          "autonomous_cicd_test_suite.py: potential password",
+          "autonomous_cicd_test_suite.py: potential secret",
+          "autonomous_cicd_test_suite.py: potential api_key",
+          "autonomous_cicd_test_suite.py: potential token",
+          "autonomous_cicd_test_suite.py: potential private_key"
+        ]
+      },
+      "documentation_completeness": {
+        "status": "WARN",
+        "doc_files_found": 36,
+        "missing_required_docs": [
+          "LICENSE"
+        ],
+        "readme_quality": {
+          "length_chars": 9557,
+          "has_installation": true,
+          "has_usage": true,
+          "has_features": true
+        }
+      }
+    },
+    "performance_metrics": {
+      "demo_execution_time": 0.08097124099731445,
+      "file_scan": {
+        "time_seconds": 0.19854068756103516,
+        "files_scanned": 8759
+      },
+      "json_processing": {
+        "time_seconds": 0.002735614776611328,
+        "objects_processed": 1000
+      },
+      "memory_usage": {
+        "test_data_mb": 0.00017547607421875
+      }
+    },
+    "environment": {
+      "python_version": "3.12.3 (main, Jun 18 2025, 17:59:45) [GCC 13.3.0]",
+      "platform": "linux",
+      "working_directory": "/root/repo"
+    }
+  }
+}
