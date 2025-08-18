@@ -461,6 +461,31 @@ class TechnologyFile:
         # Convert to mm²
         return total_area * 1e6
     
+    @property
+    def model_file(self) -> str:
+        """Get the model file path for SPICE simulation."""
+        if self.model_library_path:
+            return self.model_library_path
+        
+        # Generate default model file name based on technology
+        return f"{self.foundry.lower()}_{self.process_node}_models.lib"
+    
+    @property
+    def nmos_model(self) -> str:
+        """Get the NMOS model name for SPICE netlists."""
+        nmos = self.get_device_model('nmos')
+        return nmos.name if nmos else 'nch'
+    
+    @property
+    def pmos_model(self) -> str:
+        """Get the PMOS model name for SPICE netlists."""
+        pmos = self.get_device_model('pmos')
+        return pmos.name if pmos else 'pch'
+    
+    def get_default(self) -> 'TechnologyFile':
+        """Compatibility method - returns default technology."""
+        return TechnologyFile.default()
+    
     def __str__(self) -> str:
         """String representation of technology file."""
         lines = [
