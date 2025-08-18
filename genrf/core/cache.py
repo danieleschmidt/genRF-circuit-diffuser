@@ -576,3 +576,59 @@ def clear_all_caches() -> None:
     model_cache.memory_cache.clear()
     simulation_cache.memory_cache.clear()
     logger.info("All caches cleared")
+
+
+class ResultCache:
+    """
+    Simple cache for circuit generation results.
+    
+    Provides caching interface compatible with CircuitDiffuser.
+    """
+    
+    def __init__(self, max_size: int = 100):
+        """Initialize result cache."""
+        self.cache = LRUCache(
+            max_size=max_size,
+            max_memory_mb=64.0,
+            default_ttl_seconds=3600  # 1 hour
+        )
+    
+    def get(self, spec) -> Optional[Any]:
+        """Get cached result for design specification."""
+        # Create key from spec
+        key = self._spec_to_key(spec)
+        return self.cache.get(key)
+    
+    def put(self, spec, result: Any) -> None:
+        """Store result in cache."""
+        key = self._spec_to_key(spec)
+        self.cache.put(key, result)
+    
+    def _spec_to_key(self, spec) -> str:
+        """Convert specification to cache key."""
+        try:
+            # Convert spec to dictionary
+            if hasattr(spec, '__dict__'):
+                spec_dict = spec.__dict__.copy()
+            else:
+                spec_dict = dict(spec)
+            
+            # Remove non-essential fields
+            spec_dict.pop('name', None)
+            spec_dict.pop('description', None)
+            
+            # Create deterministic key
+            key_string = json.dumps(spec_dict, sort_keys=True, default=str)
+            return hashlib.sha256(key_string.encode()).hexdigest()[:16]
+            
+        except Exception as e:
+            logger.warning(f"Failed to create cache key: {e}")
+            return str(hash(str(spec)))
+    
+    def clear(self) -> None:
+        """Clear cache."""
+        self.cache.clear()
+    
+    def get_stats(self) -> Dict[str, Any]:
+        """Get cache statistics."""
+        return self.cache.get_stats()
