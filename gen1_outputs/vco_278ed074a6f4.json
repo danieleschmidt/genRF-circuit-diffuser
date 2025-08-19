@@ -1,0 +1,15 @@
+{
+  "circuit_id": "278ed074a6f4",
+  "circuit_type": "VCO",
+  "performance": {
+    "gain": 3.1341828153850493,
+    "noise_figure": 8.637571812439615,
+    "power": 0.08474803605447168
+  },
+  "components": {
+    "generic": {
+      "value": 1
+    }
+  },
+  "netlist": "* Generic circuit netlist\n.end"
+}
