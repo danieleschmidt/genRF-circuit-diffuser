@@ -1,0 +1,473 @@
+{
+  "timestamp": 1755717603.2495582,
+  "circuit_specification": {
+    "circuit_type": "LNA",
+    "frequency": 2400000000.0,
+    "gain_min": 15.0,
+    "power_max": 0.01,
+    "bandwidth": 100000000.0
+  },
+  "deployment_results": {
+    "na": {
+      "status": "compliance_issues",
+      "compliance": {
+        "compliant": false,
+        "violations": [
+          {
+            "type": "power_limit_exceeded",
+            "band": "2.4GHz",
+            "limit": 30,
+            "actual": 100.0
+          }
+        ],
+        "required_actions": [],
+        "certifications_needed": [
+          "FCC ID",
+          "Equipment Authorization"
+        ]
+      },
+      "deployment_time": 0.041235923767089844,
+      "performance": {
+        "latency": 101.19333881703105,
+        "throughput": 364.8931208778203,
+        "availability": 0.9996267822283412,
+        "error_rate": 0.005068791019943692
+      },
+      "config": {
+        "languages": [
+          "en",
+          "es",
+          "fr"
+        ],
+        "timezone": "America/New_York",
+        "currency": "USD",
+        "cdn_endpoints": [
+          "us-east-1",
+          "us-west-2",
+          "ca-central-1"
+        ]
+      }
+    },
+    "eu": {
+      "status": "compliance_issues",
+      "compliance": {
+        "compliant": false,
+        "violations": [
+          {
+            "type": "ce_power_limit",
+            "standard": "EN 300 328",
+            "limit": 20,
+            "actual": 100.0
+          }
+        ],
+        "required_actions": [],
+        "certifications_needed": [
+          "CE Marking",
+          "Declaration of Conformity"
+        ]
+      },
+      "deployment_time": 0.04136490821838379,
+      "performance": {
+        "latency": 67.69533552942337,
+        "throughput": 359.74469864009205,
+        "availability": 0.9999,
+        "error_rate": 0.009793229404129602
+      },
+      "config": {
+        "languages": [
+          "en",
+          "de",
+          "fr",
+          "es",
+          "it",
+          "nl"
+        ],
+        "timezone": "Europe/London",
+        "currency": "EUR",
+        "cdn_endpoints": [
+          "eu-west-1",
+          "eu-central-1",
+          "eu-north-1"
+        ]
+      }
+    },
+    "apac": {
+      "status": "success",
+      "compliance": {
+        "compliant": true,
+        "violations": [],
+        "required_actions": [],
+        "certifications_needed": []
+      },
+      "deployment_time": 0.04112100601196289,
+      "performance": {
+        "latency": 169.0393074806148,
+        "throughput": 184.8229743135234,
+        "availability": 0.9992609972411912,
+        "error_rate": 0.005502359357139604
+      },
+      "config": {
+        "languages": [
+          "en",
+          "zh",
+          "ja",
+          "ko",
+          "hi"
+        ],
+        "timezone": "Asia/Singapore",
+        "currency": "USD",
+        "cdn_endpoints": [
+          "ap-southeast-1",
+          "ap-northeast-1",
+          "ap-south-1"
+        ]
+      }
+    },
+    "latam": {
+      "status": "success",
+      "compliance": {
+        "compliant": true,
+        "violations": [],
+        "required_actions": [],
+        "certifications_needed": []
+      },
+      "deployment_time": 0.041458845138549805,
+      "performance": {
+        "latency": 185.43970513259654,
+        "throughput": 397.40435567467443,
+        "availability": 0.9983080524963989,
+        "error_rate": 0.008233478027398447
+      },
+      "config": {
+        "languages": [
+          "es",
+          "pt",
+          "en"
+        ],
+        "timezone": "America/Sao_Paulo",
+        "currency": "USD",
+        "cdn_endpoints": [
+          "sa-east-1"
+        ]
+      }
+    },
+    "mea": {
+      "status": "success",
+      "compliance": {
+        "compliant": true,
+        "violations": [],
+        "required_actions": [],
+        "certifications_needed": []
+      },
+      "deployment_time": 0.04129457473754883,
+      "performance": {
+        "latency": 213.59256062040035,
+        "throughput": 318.2878639293318,
+        "availability": 0.997179323448808,
+        "error_rate": 0.008360931134965065
+      },
+      "config": {
+        "languages": [
+          "en",
+          "ar",
+          "fr"
+        ],
+        "timezone": "Africa/Johannesburg",
+        "currency": "USD",
+        "cdn_endpoints": [
+          "me-south-1",
+          "af-south-1"
+        ]
+      }
+    }
+  },
+  "localization_results": {
+    "en": {
+      "language": "en",
+      "region": "na",
+      "translations": {
+        "amplifier": "Amplifier",
+        "frequency": "Frequency",
+        "gain": "Gain",
+        "noise_figure": "Noise Figure",
+        "generating_circuit": "Generating Circuit",
+        "optimization_complete": "Optimization Complete"
+      },
+      "preferences": {
+        "frequency_units": "GHz",
+        "power_units": "dBm",
+        "impedance_standard": 50.0,
+        "temperature_units": "Celsius",
+        "design_margins": {
+          "gain": 3.0,
+          "power": 2.0
+        }
+      }
+    },
+    "zh": {
+      "language": "zh",
+      "region": "apac",
+      "translations": {
+        "amplifier": "\u653e\u5927\u5668",
+        "frequency": "\u9891\u7387",
+        "gain": "\u589e\u76ca",
+        "noise_figure": "\u566a\u58f0\u7cfb\u6570",
+        "generating_circuit": "\u6b63\u5728\u751f\u6210\u7535\u8def",
+        "optimization_complete": "\u4f18\u5316\u5b8c\u6210"
+      },
+      "preferences": {
+        "frequency_units": "GHz",
+        "power_units": "dBm",
+        "impedance_standard": 50.0,
+        "temperature_units": "Celsius",
+        "design_margins": {
+          "gain": 2.5,
+          "power": 1.5
+        }
+      }
+    },
+    "de": {
+      "language": "de",
+      "region": "eu",
+      "translations": {
+        "amplifier": "Verst\u00e4rker",
+        "frequency": "Frequenz",
+        "gain": "Verst\u00e4rkung",
+        "noise_figure": "Rauschzahl",
+        "generating_circuit": "Schaltung wird generiert",
+        "optimization_complete": "Optimierung abgeschlossen"
+      },
+      "preferences": {
+        "frequency_units": "GHz",
+        "power_units": "dBm",
+        "impedance_standard": 50.0,
+        "temperature_units": "Celsius",
+        "design_margins": {
+          "gain": 3.0,
+          "power": 2.0
+        }
+      }
+    },
+    "ja": {
+      "language": "ja",
+      "region": "apac",
+      "translations": {
+        "amplifier": "\u5897\u5e45\u5668",
+        "frequency": "\u5468\u6ce2\u6570",
+        "gain": "\u5229\u5f97",
+        "noise_figure": "\u96d1\u97f3\u6307\u6570",
+        "generating_circuit": "\u56de\u8def\u3092\u751f\u6210\u4e2d",
+        "optimization_complete": "\u6700\u9069\u5316\u5b8c\u4e86"
+      },
+      "preferences": {
+        "frequency_units": "GHz",
+        "power_units": "dBm",
+        "impedance_standard": 50.0,
+        "temperature_units": "Celsius",
+        "design_margins": {
+          "gain": 2.5,
+          "power": 1.5
+        }
+      }
+    },
+    "fr": {
+      "language": "fr",
+      "region": "eu",
+      "translations": {
+        "amplifier": "Amplificateur",
+        "frequency": "Fr\u00e9quence",
+        "gain": "Gain",
+        "noise_figure": "Facteur de Bruit",
+        "generating_circuit": "G\u00e9n\u00e9ration du circuit",
+        "optimization_complete": "Optimisation termin\u00e9e"
+      },
+      "preferences": {
+        "frequency_units": "GHz",
+        "power_units": "dBm",
+        "impedance_standard": 50.0,
+        "temperature_units": "Celsius",
+        "design_margins": {
+          "gain": 3.0,
+          "power": 2.0
+        }
+      }
+    },
+    "es": {
+      "language": "es",
+      "region": "na",
+      "translations": {
+        "amplifier": "Amplificador",
+        "frequency": "Frecuencia",
+        "gain": "Ganancia",
+        "noise_figure": "Figura de Ruido",
+        "generating_circuit": "Generando circuito",
+        "optimization_complete": "Optimizaci\u00f3n completa"
+      },
+      "preferences": {
+        "frequency_units": "GHz",
+        "power_units": "dBm",
+        "impedance_standard": 50.0,
+        "temperature_units": "Celsius",
+        "design_margins": {
+          "gain": 3.0,
+          "power": 2.0
+        }
+      }
+    }
+  },
+  "global_status": {
+    "timestamp": "2025-08-20T19:20:03.249348+00:00",
+    "regions": {
+      "na": {
+        "primary_language": "en",
+        "supported_languages": [
+          "en",
+          "es",
+          "fr"
+        ],
+        "timezone": "America/New_York",
+        "currency": "USD",
+        "compliance_standards": [
+          "ccpa",
+          "soc2"
+        ],
+        "data_residency_required": false,
+        "cloud_providers": [
+          "aws",
+          "azure",
+          "gcp"
+        ],
+        "max_latency_ms": 150,
+        "min_availability": 0.999
+      },
+      "eu": {
+        "primary_language": "en",
+        "supported_languages": [
+          "en",
+          "de",
+          "fr",
+          "es",
+          "it",
+          "nl"
+        ],
+        "timezone": "Europe/London",
+        "currency": "EUR",
+        "compliance_standards": [
+          "gdpr",
+          "iso27001"
+        ],
+        "data_residency_required": true,
+        "cloud_providers": [
+          "azure",
+          "aws",
+          "gcp"
+        ],
+        "max_latency_ms": 120,
+        "min_availability": 0.9995
+      },
+      "apac": {
+        "primary_language": "en",
+        "supported_languages": [
+          "en",
+          "zh",
+          "ja",
+          "ko",
+          "hi"
+        ],
+        "timezone": "Asia/Singapore",
+        "currency": "USD",
+        "compliance_standards": [
+          "pdpa",
+          "dpa"
+        ],
+        "data_residency_required": true,
+        "cloud_providers": [
+          "aws",
+          "gcp",
+          "azure"
+        ],
+        "max_latency_ms": 200,
+        "min_availability": 0.999
+      },
+      "latam": {
+        "primary_language": "es",
+        "supported_languages": [
+          "es",
+          "pt",
+          "en"
+        ],
+        "timezone": "America/Sao_Paulo",
+        "currency": "USD",
+        "compliance_standards": [
+          "lgpd"
+        ],
+        "data_residency_required": false,
+        "cloud_providers": [
+          "aws",
+          "gcp"
+        ],
+        "max_latency_ms": 250,
+        "min_availability": 0.998
+      },
+      "mea": {
+        "primary_language": "en",
+        "supported_languages": [
+          "en",
+          "ar",
+          "fr"
+        ],
+        "timezone": "Africa/Johannesburg",
+        "currency": "USD",
+        "compliance_standards": [
+          "iso27001"
+        ],
+        "data_residency_required": false,
+        "cloud_providers": [
+          "aws",
+          "azure"
+        ],
+        "max_latency_ms": 300,
+        "min_availability": 0.997
+      }
+    },
+    "global_metrics": {
+      "total_regions": 5,
+      "total_languages": 12,
+      "compliance_standards": [
+        "ccpa",
+        "dpa",
+        "gdpr",
+        "iso27001",
+        "lgpd",
+        "pdpa",
+        "soc2"
+      ],
+      "cloud_providers": [
+        "aws",
+        "azure",
+        "gcp"
+      ],
+      "supported_languages": [
+        "ar",
+        "de",
+        "en",
+        "es",
+        "fr",
+        "hi",
+        "it",
+        "ja",
+        "ko",
+        "nl",
+        "pt",
+        "zh"
+      ]
+    }
+  },
+  "performance_summary": {
+    "successful_regions": 3,
+    "total_regions": 5,
+    "coverage_percentage": 60.0,
+    "average_latency": 189.35719107787057,
+    "average_availability": 0.9982494577287994
+  }
+}

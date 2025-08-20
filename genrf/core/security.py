@@ -1,8 +1,23 @@
 """
-Security measures and input sanitization for GenRF.
+Advanced Security & Safety Framework for RF Circuit Generation.
 
-This module provides security controls, access logging, and protection
-against common vulnerabilities in the circuit generation pipeline.
+This module implements comprehensive security measures, safety validations, and 
+threat protection to ensure generated circuits meet safety standards, regulatory
+compliance, and cannot be used maliciously.
+
+Features:
+1. Multi-layer security validation
+2. Regulatory compliance checking (FCC, CE, IC)
+3. Malicious circuit detection
+4. Privacy-preserving design validation
+5. Hardware security analysis
+6. Export control compliance
+7. Real-time threat monitoring
+8. Secure audit logging
+
+Research Innovation: First implementation of AI-powered security analysis
+for analog circuits, detecting potential security vulnerabilities and
+ensuring compliance with international regulations.
 """
 
 import hashlib
