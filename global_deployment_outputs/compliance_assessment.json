@@ -1,0 +1,157 @@
+{
+  "overall_compliance_score": 15.238095238095239,
+  "compliant_standards": [],
+  "non_compliant_standards": [
+    "GDPR",
+    "CCPA",
+    "PDPA",
+    "SOC2",
+    "ISO27001",
+    "HIPAA"
+  ],
+  "total_standards_assessed": 6,
+  "compliance_percentage": 0.0,
+  "detailed_assessments": {
+    "GDPR": {
+      "standard": "GDPR",
+      "compliant": false,
+      "score": 40.0,
+      "requirements_met": [
+        "encryption_at_rest",
+        "encryption_in_transit",
+        "access_controls",
+        "data_retention_policy",
+        "consent_record",
+        "processing_purpose"
+      ],
+      "requirements_missing": [],
+      "recommendations": [
+        "Conduct Data Protection Impact Assessment",
+        "Appoint Data Protection Officer"
+      ],
+      "assessment_date": "2025-08-23T17:49:43.441112+00:00"
+    },
+    "CCPA": {
+      "standard": "CCPA",
+      "compliant": false,
+      "score": 8.333333333333332,
+      "requirements_met": [
+        "personal_info_categories"
+      ],
+      "requirements_missing": [
+        "reasonable_security_measures",
+        "data_breach_procedures",
+        "business_purpose",
+        "third_party_disclosure"
+      ],
+      "recommendations": [
+        "Implement reasonable security measures",
+        "Implement data breach procedures",
+        "Add business purpose documentation",
+        "Add third party disclosure documentation"
+      ],
+      "assessment_date": "2025-08-23T17:49:43.441126+00:00"
+    },
+    "PDPA": {
+      "standard": "PDPA",
+      "compliant": false,
+      "score": 8.333333333333332,
+      "requirements_met": [
+        "consent_record"
+      ],
+      "requirements_missing": [
+        "appropriate_security_measures",
+        "staff_training",
+        "data_purpose",
+        "retention_period"
+      ],
+      "recommendations": [
+        "Implement appropriate security measures",
+        "Implement staff training",
+        "Add data purpose documentation",
+        "Add retention period documentation"
+      ],
+      "assessment_date": "2025-08-23T17:49:43.441134+00:00"
+    },
+    "SOC2": {
+      "standard": "SOC2",
+      "compliant": false,
+      "score": 13.333333333333334,
+      "requirements_met": [
+        "multi_factor_auth",
+        "vulnerability_management"
+      ],
+      "requirements_missing": [
+        "encryption",
+        "access_reviews",
+        "control_environment",
+        "risk_assessment",
+        "monitoring_activities"
+      ],
+      "recommendations": [
+        "Implement encryption",
+        "Implement access reviews",
+        "Add control environment documentation",
+        "Add risk assessment documentation",
+        "Add monitoring activities documentation",
+        "Implement continuous monitoring",
+        "Conduct regular penetration testing"
+      ],
+      "assessment_date": "2025-08-23T17:49:43.441144+00:00"
+    },
+    "ISO27001": {
+      "standard": "ISO27001",
+      "compliant": false,
+      "score": 0.0,
+      "requirements_met": [],
+      "requirements_missing": [
+        "information_classification",
+        "secure_development",
+        "security_testing",
+        "security_policy",
+        "risk_register",
+        "control_objectives"
+      ],
+      "recommendations": [
+        "Implement information classification",
+        "Implement secure development",
+        "Implement security testing",
+        "Add security policy documentation",
+        "Add risk register documentation",
+        "Add control objectives documentation"
+      ],
+      "assessment_date": "2025-08-23T17:49:43.441153+00:00"
+    },
+    "HIPAA": {
+      "standard": "HIPAA",
+      "compliant": false,
+      "score": 21.428571428571427,
+      "requirements_met": [
+        "audit_logging",
+        "user_authentication",
+        "automatic_logoff"
+      ],
+      "requirements_missing": [
+        "encryption_phi",
+        "phi_inventory",
+        "authorized_users",
+        "access_logs"
+      ],
+      "recommendations": [
+        "Implement encryption phi",
+        "Add phi inventory documentation",
+        "Add authorized users documentation",
+        "Add access logs documentation"
+      ],
+      "assessment_date": "2025-08-23T17:49:43.441162+00:00"
+    }
+  },
+  "top_recommendations": [
+    "Conduct Data Protection Impact Assessment",
+    "Appoint Data Protection Officer",
+    "Implement reasonable security measures",
+    "Implement data breach procedures",
+    "Add business purpose documentation"
+  ],
+  "assessment_date": "2025-08-23T17:49:43.441190+00:00"
+}

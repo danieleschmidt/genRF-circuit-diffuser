@@ -1,0 +1,130 @@
+{
+  "global_deployment_summary": {
+    "execution_time": 0.10187745094299316,
+    "timestamp": "2025-08-23T17:49:43.445144+00:00",
+    "regional_testing": {
+      "total_regions": 5,
+      "successful_regions": 5,
+      "success_rate": 100.0,
+      "regional_results": {
+        "us-east-1": {
+          "success": true,
+          "generation_time": 0.019620180130004883,
+          "locale": "en_US",
+          "region": "us-east-1",
+          "circuit_performance": {
+            "gain_db": 53.36602352228404,
+            "nf_db": 3.6749660068345906,
+            "power_mw": 7.127717376210171
+          },
+          "compliance_score": 7.936507936507936,
+          "compliant_standards": 0,
+          "localized_summary": {
+            "Gain (dB)": "53.37 dB",
+            "Noise Figure (dB)": "3.67 dB",
+            "Power Consumption (mW)": "7.13 mW",
+            "Security Score": "100.0/100",
+            "Reliability Score": "95.0/100"
+          }
+        },
+        "eu-west-1": {
+          "success": true,
+          "generation_time": 0.01859140396118164,
+          "locale": "fr_FR",
+          "region": "eu-west-1",
+          "circuit_performance": {
+            "gain_db": 60,
+            "nf_db": 4.025000954268626,
+            "power_mw": 23.27112735569766
+          },
+          "compliance_score": 7.936507936507936,
+          "compliant_standards": 0,
+          "localized_summary": {
+            "Gain (dB)": "60.00 dB",
+            "Figure de Bruit (dB)": "4.03 dB",
+            "Consommation (mW)": "23.27 mW",
+            "Score de Sécurité": "100.0/100",
+            "Score de Fiabilité": "85.0/100"
+          }
+        },
+        "eu-central-1": {
+          "success": true,
+          "generation_time": 0.01750922203063965,
+          "locale": "de_DE",
+          "region": "eu-central-1",
+          "circuit_performance": {
+            "gain_db": 58.89923348551168,
+            "nf_db": 3.443926988780073,
+            "power_mw": 38.71884783075403
+          },
+          "compliance_score": 7.936507936507936,
+          "compliant_standards": 0,
+          "localized_summary": {
+            "Verstärkung (dB)": "58.90 dB",
+            "Rauschzahl (dB)": "3.44 dB",
+            "Stromverbrauch (mW)": "38.72 mW",
+            "Sicherheitsbewertung": "100.0/100",
+            "Zuverlässigkeitsbewertung": "90.0/100"
+          }
+        },
+        "ap-northeast-1": {
+          "success": true,
+          "generation_time": 0.01788640022277832,
+          "locale": "ja_JP",
+          "region": "ap-northeast-1",
+          "circuit_performance": {
+            "gain_db": 40.80379874729967,
+            "nf_db": 3.548026914583269,
+            "power_mw": 23.15906907394247
+          },
+          "compliance_score": 7.936507936507936,
+          "compliant_standards": 0,
+          "localized_summary": {
+            "ゲイン (dB)": "40.80 dB",
+            "ノイズフィギュア (dB)": "3.55 dB",
+            "消費電力 (mW)": "23.16 mW",
+            "セキュリティスコア": "100.0/100",
+            "信頼性スコア": "90.0/100"
+          }
+        },
+        "ap-southeast-1": {
+          "success": true,
+          "generation_time": 0.020395994186401367,
+          "locale": "en_US",
+          "region": "ap-southeast-1",
+          "circuit_performance": {
+            "gain_db": 60,
+            "nf_db": 3.5851509470875214,
+            "power_mw": 56.69358446734635
+          },
+          "compliance_score": 7.936507936507936,
+          "compliant_standards": 0,
+          "localized_summary": {
+            "Gain (dB)": "60.00 dB",
+            "Noise Figure (dB)": "3.59 dB",
+            "Power Consumption (mW)": "56.69 mW",
+            "Security Score": "100.0/100",
+            "Reliability Score": "90.0/100"
+          }
+        }
+      }
+    },
+    "internationalization": {
+      "locales_tested": 4,
+      "supported_locales": 10,
+      "translation_coverage": "100%"
+    },
+    "compliance_status": {
+      "overall_score": 15.238095238095239,
+      "compliant_standards": [],
+      "compliance_percentage": 0.0,
+      "deployment_ready": false
+    },
+    "global_readiness": {
+      "multi_region_ready": true,
+      "i18n_ready": true,
+      "compliance_ready": false,
+      "overall_ready": false
+    }
+  }
+}

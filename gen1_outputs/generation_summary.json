@@ -1,0 +1,48 @@
+{
+  "generation": "Generation 1: MAKE IT WORK",
+  "timestamp": "2025-08-23 17:35:01",
+  "total_circuits": 3,
+  "success_rate": 0.3333333333333333,
+  "avg_generation_time": 0.00011483828226725261,
+  "results": [
+    {
+      "circuit_type": "LNA",
+      "frequency_ghz": 2.4,
+      "target_gain_db": 15,
+      "target_nf_db": 1.5,
+      "target_power_mw": 10.0,
+      "achieved_gain_db": 34.087752167760044,
+      "achieved_nf_db": 146.24413500556383,
+      "achieved_power_mw": 9.112973628401976,
+      "generation_time_s": 0.0001404285430908203,
+      "topology": "cascode_lna",
+      "meets_specs": false
+    },
+    {
+      "circuit_type": "Mixer",
+      "frequency_ghz": 5.8,
+      "target_gain_db": 8,
+      "target_nf_db": 8.0,
+      "target_power_mw": 15.0,
+      "achieved_gain_db": 19.375243776236733,
+      "achieved_nf_db": 25.268559871258745,
+      "achieved_power_mw": 2.6312043044342146,
+      "generation_time_s": 0.00012254714965820312,
+      "topology": "gilbert_mixer",
+      "meets_specs": false
+    },
+    {
+      "circuit_type": "VCO",
+      "frequency_ghz": 10.0,
+      "target_gain_db": 0,
+      "target_nf_db": Infinity,
+      "target_power_mw": 20.0,
+      "achieved_gain_db": 0.0,
+      "achieved_nf_db": Infinity,
+      "achieved_power_mw": 10.126274982783954,
+      "generation_time_s": 8.153915405273438e-05,
+      "topology": "lc_vco",
+      "meets_specs": true
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "generation": "Generation 2: MAKE IT ROBUST",
+  "timestamp": "2025-08-23 17:39:32",
+  "execution_summary": {
+    "total_test_cases": 3,
+    "successful_generations": 3,
+    "failed_generations": 0,
+    "success_rate": 1.0,
+    "avg_generation_time": 0.0014224052429199219
+  },
+  "quality_metrics": {
+    "avg_security_score": 100.0,
+    "avg_reliability_score": 95.0,
+    "total_validation_errors": 0,
+    "total_validation_warnings": 3
+  },
+  "generation_statistics": {
+    "total_generations": 3,
+    "successful_generations": 3,
+    "success_rate": 1.0,
+    "security_failures": 0,
+    "validation_failures": 0,
+    "optimization_failures": 0,
+    "failure_rates": {
+      "security": 0.0,
+      "validation": 0.0,
+      "optimization": 0.0
+    }
+  },
+  "detailed_results": [
+    {
+      "name": "High-Gain LNA",
+      "circuit_type": "LNA",
+      "frequency_ghz": 2.4,
+      "target_specs": {
+        "gain_min_db": 20.0,
+        "nf_max_db": 1.2,
+        "power_max_mw": 8.0
+      },
+      "achieved_performance": {
+        "gain_db": 24.320566195919223,
+        "nf_db": 3.796903915435169,
+        "power_mw": 11.03687163773413
+      },
+      "quality_metrics": {
+        "security_score": 100.0,
+        "reliability_score": 90.0,
+        "performance_score": 0,
+        "overall_score": 63.333333333333336
+      },
+      "validation_status": {
+        "is_valid": true,
+        "is_secure": true,
+        "is_reliable": true,
+        "error_count": 0,
+        "warning_count": 2
+      },
+      "generation_time_s": 0.0012712478637695312,
+      "meets_all_specs": false
+    },
+    {
+      "name": "mmWave Mixer",
+      "circuit_type": "Mixer",
+      "frequency_ghz": 28.0,
+      "target_specs": {
+        "gain_min_db": 5.0,
+        "nf_max_db": 12.0,
+        "power_max_mw": 20.0
+      },
+      "achieved_performance": {
+        "gain_db": 25,
+        "nf_db": 12.341474094026658,
+        "power_mw": 5.674915355848922
+      },
+      "quality_metrics": {
+        "security_score": 100.0,
+        "reliability_score": 100,
+        "performance_score": 5.723506039822278,
+        "overall_score": 68.57450201327408
+      },
+      "validation_status": {
+        "is_valid": true,
+        "is_secure": true,
+        "is_reliable": true,
+        "error_count": 0,
+        "warning_count": 0
+      },
+      "generation_time_s": 0.001180887222290039,
+      "meets_all_specs": false
+    },
+    {
+      "name": "Low-Power VCO",
+      "circuit_type": "VCO",
+      "frequency_ghz": 5.8,
+      "target_specs": {
+        "gain_min_db": 0.0,
+        "nf_max_db": Infinity,
+        "power_max_mw": 15.0
+      },
+      "achieved_performance": {
+        "gain_db": 0.0,
+        "nf_db": Infinity,
+        "power_mw": 21.884442676953622
+      },
+      "quality_metrics": {
+        "security_score": 100.0,
+        "reliability_score": 95.0,
+        "performance_score": 0,
+        "overall_score": 65.0
+      },
+      "validation_status": {
+        "is_valid": true,
+        "is_secure": true,
+        "is_reliable": true,
+        "error_count": 0,
+        "warning_count": 1
+      },
+      "generation_time_s": 0.0018150806427001953,
+      "meets_all_specs": false
+    }
+  ]
+}

@@ -1,0 +1,538 @@
+{
+  "generation": "Generation 3: MAKE IT SCALE",
+  "timestamp": "2025-08-23 17:43:58",
+  "execution_summary": {
+    "single_circuit_test": {
+      "success": true,
+      "generation_time_s": 0.02417135238647461,
+      "circuit_type": "LNA",
+      "frequency_ghz": 5.8
+    },
+    "batch_generation_test": {
+      "total_circuits": 6,
+      "successful_circuits": 6,
+      "success_rate": 1.0,
+      "batch_time_s": 0.29914331436157227,
+      "throughput_circuits_per_sec": 20.05727593412917,
+      "parallel_efficiency": 46.87950121311763
+    },
+    "design_space_test": {
+      "total_points": 50,
+      "successful_points": 50,
+      "success_rate": 1.0,
+      "analysis_time_s": 1.9619896411895752,
+      "pareto_front_size": 15,
+      "pareto_solutions": [
+        {
+          "parameters": {
+            "frequency": 1244953607.9302316,
+            "gain_min": 12.322536030666935,
+            "nf_max": 1.7543415738426482,
+            "power_max": 0.012845747754524548
+          },
+          "performance": {
+            "gain_db": 60,
+            "noise_figure_db": 3.3268769428128513,
+            "power_w": 0.0608974830581808,
+            "s11_db": -5,
+            "bandwidth_hz": 2.34535005035666,
+            "stability_margin_db": 0,
+            "unity_gain_freq_hz": 11.726750251783299,
+            "transconductance_ms": 307.56304574838794,
+            "estimation_confidence": 0.85
+          },
+          "gain_db": 60,
+          "nf_db": 3.3268769428128513,
+          "power_mw": 60.8974830581808,
+          "security_score": 100.0,
+          "reliability_score": 90.0,
+          "topology": "cascode_lna_v1"
+        },
+        {
+          "parameters": {
+            "frequency": 5241203411.337023,
+            "gain_min": 11.173671667066127,
+            "nf_max": 2.6901443167032033,
+            "power_max": 0.019405094313312072
+          },
+          "performance": {
+            "gain_db": 52.72953025092395,
+            "noise_figure_db": 4.011643882378961,
+            "power_w": 0.007947399913101243,
+            "s11_db": -5,
+            "bandwidth_hz": 2.73731347285055,
+            "stability_margin_db": 0,
+            "unity_gain_freq_hz": 13.686567364252749,
+            "transconductance_ms": 40.13838339950123,
+            "estimation_confidence": 0.85
+          },
+          "gain_db": 52.72953025092395,
+          "nf_db": 4.011643882378961,
+          "power_mw": 7.947399913101243,
+          "security_score": 100.0,
+          "reliability_score": 95.0,
+          "topology": "cascode_lna_v1"
+        },
+        {
+          "parameters": {
+            "frequency": 1967947669.581712,
+            "gain_min": 13.06918518547687,
+            "nf_max": 1.5328011967021586,
+            "power_max": 0.011982099075689367
+          },
+          "performance": {
+            "gain_db": 41.8015282355442,
+            "noise_figure_db": 3.6821472492475005,
+            "power_w": 0.007027507779978006,
+            "s11_db": -5,
+            "bandwidth_hz": 0.13762171720526142,
+            "stability_margin_db": 0,
+            "unity_gain_freq_hz": 0.6881085860263071,
+            "transconductance_ms": 35.492463535242464,
+            "estimation_confidence": 0.85
+          },
+          "gain_db": 41.8015282355442,
+          "nf_db": 3.6821472492475005,
+          "power_mw": 7.027507779978007,
+          "security_score": 100.0,
+          "reliability_score": 95.0,
+          "topology": "differential_lna"
+        },
+        {
+          "parameters": {
+            "frequency": 5223243644.8165455,
+            "gain_min": 13.875108862664137,
+            "nf_max": 2.4905257296087404,
+            "power_max": 0.01988785279714382
+          },
+          "performance": {
+            "gain_db": 49.82506670713471,
+            "noise_figure_db": 3.8490928891494844,
+            "power_w": 0.007266926957520541,
+            "s11_db": -5,
+            "bandwidth_hz": 0.7144826982054256,
+            "stability_margin_db": 0,
+            "unity_gain_freq_hz": 3.5724134910271284,
+            "transconductance_ms": 36.701651300608795,
+            "estimation_confidence": 0.85
+          },
+          "gain_db": 49.82506670713471,
+          "nf_db": 3.8490928891494844,
+          "power_mw": 7.266926957520541,
+          "security_score": 100.0,
+          "reliability_score": 95.0,
+          "topology": "cascode_lna_v1"
+        },
+        {
+          "parameters": {
+            "frequency": 4227044806.5534763,
+            "gain_min": 12.301676472131238,
+            "nf_max": 2.8191325318465648,
+            "power_max": 0.011870435865056235
+          },
+          "performance": {
+            "gain_db": 60,
+            "noise_figure_db": 3.675904931492362,
+            "power_w": 0.018826264085277766,
+            "s11_db": -5,
+            "bandwidth_hz": 1.7923126652336712,
+            "stability_margin_db": 0,
+            "unity_gain_freq_hz": 8.961563326168354,
+            "transconductance_ms": 95.08214184483721,
+            "estimation_confidence": 0.85
+          },
+          "gain_db": 60,
+          "nf_db": 3.675904931492362,
+          "power_mw": 18.826264085277767,
+          "security_score": 100.0,
+          "reliability_score": 90.0,
+          "topology": "common_source_lna"
+        },
+        {
+          "parameters": {
+            "frequency": 2396448492.243622,
+            "gain_min": 10.90577675642332,
+            "nf_max": 1.0332888652666976,
+            "power_max": 0.009880028125442829
+          },
+          "performance": {
+            "gain_db": 60,
+            "noise_figure_db": 3.5153813266503824,
+            "power_w": 0.020534765095780644,
+            "s11_db": -5,
+            "bandwidth_hz": 1.1395875092903798,
+            "stability_margin_db": 0,
+            "unity_gain_freq_hz": 5.697937546451899,
+            "transconductance_ms": 103.71093482717498,
+            "estimation_confidence": 0.85
+          },
+          "gain_db": 60,
+          "nf_db": 3.5153813266503824,
+          "power_mw": 20.534765095780642,
+          "security_score": 100.0,
+          "reliability_score": 90.0,
+          "topology": "differential_lna"
+        },
+        {
+          "parameters": {
+            "frequency": 3900384474.83163,
+            "gain_min": 19.98059554763116,
+            "nf_max": 1.2042244349790374,
+            "power_max": 0.00510239640143938
+          },
+          "performance": {
+            "gain_db": 57.69808883005795,
+            "noise_figure_db": 3.6999113885197152,
+            "power_w": 0.008355153691707851,
+            "s11_db": -5,
+            "bandwidth_hz": 4.293023104338805,
+            "stability_margin_db": 0,
+            "unity_gain_freq_hz": 21.465115521694027,
+            "transconductance_ms": 42.19774591771643,
+            "estimation_confidence": 0.85
+          },
+          "gain_db": 57.69808883005795,
+          "nf_db": 3.6999113885197152,
+          "power_mw": 8.355153691707851,
+          "security_score": 100.0,
+          "reliability_score": 90.0,
+          "topology": "common_source_lna"
+        },
+        {
+          "parameters": {
+            "frequency": 2557371947.228038,
+            "gain_min": 20.020530885669267,
+            "nf_max": 1.2186325170681644,
+            "power_max": 0.015268191372573896
+          },
+          "performance": {
+            "gain_db": 60,
+            "noise_figure_db": 3.4797748971558424,
+            "power_w": 0.028063919341903925,
+            "s11_db": -5,
+            "bandwidth_hz": 4.972350000645041,
+            "stability_margin_db": 0,
+            "unity_gain_freq_hz": 24.861750003225204,
+            "transconductance_ms": 141.73696637325216,
+            "estimation_confidence": 0.85
+          },
+          "gain_db": 60,
+          "nf_db": 3.4797748971558424,
+          "power_mw": 28.063919341903926,
+          "security_score": 100.0,
+          "reliability_score": 90.0,
+          "topology": "common_source_lna"
+        },
+        {
+          "parameters": {
+            "frequency": 8216465321.057195,
+            "gain_min": 14.06266877791475,
+            "nf_max": 2.1305567616438306,
+            "power_max": 0.006675481820556923
+          },
+          "performance": {
+            "gain_db": 35.84452954521203,
+            "noise_figure_db": 5.347527387163623,
+            "power_w": 0.0009544667192544374,
+            "s11_db": -5,
+            "bandwidth_hz": 0.1278724950079888,
+            "stability_margin_db": 0,
+            "unity_gain_freq_hz": 0.639362475039944,
+            "transconductance_ms": 4.820538986133522,
+            "estimation_confidence": 0.85
+          },
+          "gain_db": 35.84452954521203,
+          "nf_db": 5.347527387163623,
+          "power_mw": 0.9544667192544374,
+          "security_score": 100.0,
+          "reliability_score": 95.0,
+          "topology": "differential_lna"
+        },
+        {
+          "parameters": {
+            "frequency": 6409205625.850971,
+            "gain_min": 19.045193666731556,
+            "nf_max": 1.013631598988693,
+            "power_max": 0.00636389872105526
+          },
+          "performance": {
+            "gain_db": 44.90876469693084,
+            "noise_figure_db": 4.5778832014774355,
+            "power_w": 0.0017831878644186483,
+            "s11_db": -5,
+            "bandwidth_hz": 0.347327235625809,
+            "stability_margin_db": 0,
+            "unity_gain_freq_hz": 1.7366361781290451,
+            "transconductance_ms": 9.0059993152457,
+            "estimation_confidence": 0.85
+          },
+          "gain_db": 44.90876469693084,
+          "nf_db": 4.5778832014774355,
+          "power_mw": 1.7831878644186483,
+          "security_score": 100.0,
+          "reliability_score": 95.0,
+          "topology": "cascode_lna_v1"
+        },
+        {
+          "parameters": {
+            "frequency": 5017247848.370659,
+            "gain_min": 22.472874097745425,
+            "nf_max": 1.8173579522083008,
+            "power_max": 0.019075728323961885
+          },
+          "performance": {
+            "gain_db": 24.03717550827556,
+            "noise_figure_db": 6.363520982858394,
+            "power_w": 0.0004965245510958407,
+            "s11_db": -5,
+            "bandwidth_hz": 0.038863859343695205,
+            "stability_margin_db": 0,
+            "unity_gain_freq_hz": 0.19431929671847603,
+            "transconductance_ms": 2.5076997530092964,
+            "estimation_confidence": 0.85
+          },
+          "gain_db": 24.03717550827556,
+          "nf_db": 6.363520982858394,
+          "power_mw": 0.49652455109584065,
+          "security_score": 100.0,
+          "reliability_score": 95.0,
+          "topology": "differential_lna"
+        },
+        {
+          "parameters": {
+            "frequency": 1119741268.8334994,
+            "gain_min": 16.67771122494922,
+            "nf_max": 2.728552055369935,
+            "power_max": 0.01657369680950159
+          },
+          "performance": {
+            "gain_db": 51.78556423780335,
+            "noise_figure_db": 3.53862199131754,
+            "power_w": 0.009965575220554064,
+            "s11_db": -5,
+            "bandwidth_hz": 0.1943872737353877,
+            "stability_margin_db": 0,
+            "unity_gain_freq_hz": 0.9719363686769384,
+            "transconductance_ms": 50.33118798259628,
+            "estimation_confidence": 0.85
+          },
+          "gain_db": 51.78556423780335,
+          "nf_db": 3.53862199131754,
+          "power_mw": 9.965575220554063,
+          "security_score": 100.0,
+          "reliability_score": 95.0,
+          "topology": "differential_lna"
+        },
+        {
+          "parameters": {
+            "frequency": 1110364693.2758815,
+            "gain_min": 23.64439369287605,
+            "nf_max": 2.0055995486150646,
+            "power_max": 0.011956240993975369
+          },
+          "performance": {
+            "gain_db": 60,
+            "noise_figure_db": 3.415002721260439,
+            "power_w": 0.05026823824319551,
+            "s11_db": -5,
+            "bandwidth_hz": 2.0392415477095787,
+            "stability_margin_db": 0,
+            "unity_gain_freq_hz": 10.196207738547892,
+            "transconductance_ms": 253.87999112725007,
+            "estimation_confidence": 0.85
+          },
+          "gain_db": 60,
+          "nf_db": 3.415002721260439,
+          "power_mw": 50.26823824319551,
+          "security_score": 100.0,
+          "reliability_score": 90.0,
+          "topology": "common_source_lna"
+        },
+        {
+          "parameters": {
+            "frequency": 4958351333.699335,
+            "gain_min": 22.582066114363876,
+            "nf_max": 1.3552502625801512,
+            "power_max": 0.008613987580606148
+          },
+          "performance": {
+            "gain_db": 60,
+            "noise_figure_db": 3.7592305054104056,
+            "power_w": 0.011185015288634076,
+            "s11_db": -5,
+            "bandwidth_hz": 1.186901292529154,
+            "stability_margin_db": 0,
+            "unity_gain_freq_hz": 5.93450646264577,
+            "transconductance_ms": 56.48997620522261,
+            "estimation_confidence": 0.85
+          },
+          "gain_db": 60,
+          "nf_db": 3.7592305054104056,
+          "power_mw": 11.185015288634077,
+          "security_score": 100.0,
+          "reliability_score": 90.0,
+          "topology": "differential_lna"
+        },
+        {
+          "parameters": {
+            "frequency": 1429510496.623795,
+            "gain_min": 14.620513259637749,
+            "nf_max": 1.8509158602169138,
+            "power_max": 0.011692204475029618
+          },
+          "performance": {
+            "gain_db": 46.585182122395196,
+            "noise_figure_db": 3.8712149735777555,
+            "power_w": 0.003196398984121377,
+            "s11_db": -5,
+            "bandwidth_hz": 1.1841160120323364,
+            "stability_margin_db": 0,
+            "unity_gain_freq_hz": 5.920580060161682,
+            "transconductance_ms": 16.14342921273423,
+            "estimation_confidence": 0.85
+          },
+          "gain_db": 46.585182122395196,
+          "nf_db": 3.8712149735777555,
+          "power_mw": 3.1963989841213767,
+          "security_score": 100.0,
+          "reliability_score": 95.0,
+          "topology": "common_source_lna"
+        }
+      ],
+      "parameter_ranges": {
+        "frequency": [
+          1000000000.0,
+          10000000000.0
+        ],
+        "gain_min": [
+          10,
+          25
+        ],
+        "nf_max": [
+          1.0,
+          3.0
+        ],
+        "power_max": [
+          0.005,
+          0.02
+        ]
+      },
+      "performance_statistics": {
+        "gain_db": {
+          "mean": 54.78036878553584,
+          "min": 24.03717550827556,
+          "max": 60,
+          "std": 7.70758250734673
+        },
+        "noise_figure_db": {
+          "mean": 3.867525316979428,
+          "min": 3.3268769428128513,
+          "max": 6.363520982858394,
+          "std": 0.48630707327877354
+        },
+        "power_mw": {
+          "mean": 29.632365699431045,
+          "min": 0.49652455109584065,
+          "max": 64.36142418283202,
+          "std": 18.464519557326522
+        },
+        "security_score": {
+          "mean": 100.0,
+          "min": 100.0,
+          "max": 100.0
+        }
+      },
+      "optimization_efficiency": 0.3
+    }
+  },
+  "performance_metrics": {
+    "performance_metrics": {
+      "generation_time_s": 0.048575639724731445,
+      "optimization_time_s": 0.03463602066040039,
+      "validation_time_s": 0.00026106834411621094,
+      "memory_peak_mb": 0.0,
+      "cpu_utilization_pct": 0.0,
+      "cache_hit_rate_pct": 0.0,
+      "parallel_efficiency_pct": 46.87950121311763,
+      "throughput_circuits_per_sec": 25.5911311985507
+    },
+    "generation_statistics": {
+      "total_generations": 57,
+      "successful_generations": 57,
+      "failed_generations": 0,
+      "success_rate": 1.0,
+      "avg_generation_time_s": 0.06985396251343844,
+      "avg_optimization_time_s": 0.06549437840779622
+    },
+    "optimization_statistics": {
+      "strategy": {
+        "algorithm": "bayesian",
+        "max_iterations": 10,
+        "population_size": 15,
+        "convergence_threshold": 1e-06,
+        "multi_objective": true,
+        "parallel_evaluation": true,
+        "adaptive_parameters": true,
+        "cache_evaluations": true,
+        "early_stopping": true
+      },
+      "cache_statistics": {
+        "size": 586,
+        "max_size": 10000,
+        "hit_count": 0,
+        "miss_count": 586,
+        "hit_rate": 0.0,
+        "memory_usage_mb": 0.17838001251220703
+      },
+      "worker_count": 2
+    },
+    "circuit_type_breakdown": {
+      "LNA": {
+        "count": 53,
+        "avg_generation_time": 0.06714852800909078,
+        "success_rate": 1.0,
+        "avg_gain_db": 54.660027608536836
+      },
+      "Mixer": {
+        "count": 2,
+        "avg_generation_time": 0.13912129402160645,
+        "success_rate": 1.0,
+        "avg_gain_db": 25.0
+      },
+      "VCO": {
+        "count": 2,
+        "avg_generation_time": 0.0722806453704834,
+        "success_rate": 1.0,
+        "avg_gain_db": 0.0
+      }
+    },
+    "recent_performance_trend": {
+      "generation_time_trend": 0.10266843628254835,
+      "success_rate_trend": 0.0,
+      "recent_throughput": 12.086227281254134
+    }
+  },
+  "scalability_metrics": {
+    "worker_count": 2,
+    "optimization_strategy": {
+      "algorithm": "bayesian",
+      "max_iterations": 10,
+      "population_size": 15,
+      "convergence_threshold": 1e-06,
+      "multi_objective": true,
+      "parallel_evaluation": true,
+      "adaptive_parameters": true,
+      "cache_evaluations": true,
+      "early_stopping": true
+    },
+    "cache_enabled": true,
+    "cache_hit_rate": 0.0,
+    "memory_peak_mb": 0.0,
+    "total_execution_time_s": 2.3038623332977295
+  },
+  "quality_metrics": {
+    "avg_security_score": 100.0,
+    "avg_reliability_score": 94.16666666666667,
+    "validation_success_rate": 1.0
+  }
+}
