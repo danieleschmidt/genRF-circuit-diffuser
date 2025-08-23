@@ -1,0 +1,271 @@
+{
+  "global_deployment_manifest": {
+    "version": "1.0.0",
+    "generation_date": "2025-08-23T17:49:43.442492+00:00",
+    "global_config": {
+      "default_locale": "en_US",
+      "supported_locales": [
+        "en_US",
+        "es_ES",
+        "fr_FR",
+        "de_DE",
+        "ja_JP",
+        "zh_CN",
+        "ko_KR",
+        "pt_BR",
+        "ru_RU",
+        "it_IT"
+      ],
+      "default_timezone": "UTC",
+      "supported_regions": [
+        "us-east-1",
+        "us-west-2",
+        "eu-west-1",
+        "eu-central-1",
+        "ap-southeast-1",
+        "ap-northeast-1",
+        "ap-south-1",
+        "ca-central-1",
+        "sa-east-1"
+      ],
+      "compliance_standards": [
+        "GDPR",
+        "CCPA",
+        "PDPA",
+        "SOC2",
+        "ISO27001",
+        "HIPAA"
+      ]
+    },
+    "supported_regions": {
+      "us-east-1": {
+        "name": "US East (N. Virginia)",
+        "compliance_standards": [
+          "SOC2",
+          "CCPA"
+        ],
+        "data_residency": "United States",
+        "default_locale": "en_US",
+        "currency": "USD",
+        "latency_target_ms": 50,
+        "availability_target": 99.9
+      },
+      "us-west-2": {
+        "name": "US West (Oregon)",
+        "compliance_standards": [
+          "SOC2",
+          "CCPA"
+        ],
+        "data_residency": "United States",
+        "default_locale": "en_US",
+        "currency": "USD",
+        "latency_target_ms": 50,
+        "availability_target": 99.9
+      },
+      "eu-west-1": {
+        "name": "Europe (Ireland)",
+        "compliance_standards": [
+          "GDPR",
+          "ISO27001"
+        ],
+        "data_residency": "European Union",
+        "default_locale": "en_US",
+        "currency": "EUR",
+        "latency_target_ms": 60,
+        "availability_target": 99.95
+      },
+      "eu-central-1": {
+        "name": "Europe (Frankfurt)",
+        "compliance_standards": [
+          "GDPR",
+          "ISO27001"
+        ],
+        "data_residency": "European Union",
+        "default_locale": "de_DE",
+        "currency": "EUR",
+        "latency_target_ms": 60,
+        "availability_target": 99.95
+      },
+      "ap-southeast-1": {
+        "name": "Asia Pacific (Singapore)",
+        "compliance_standards": [
+          "PDPA",
+          "ISO27001"
+        ],
+        "data_residency": "Singapore",
+        "default_locale": "en_US",
+        "currency": "SGD",
+        "latency_target_ms": 80,
+        "availability_target": 99.9
+      },
+      "ap-northeast-1": {
+        "name": "Asia Pacific (Tokyo)",
+        "compliance_standards": [
+          "ISO27001"
+        ],
+        "data_residency": "Japan",
+        "default_locale": "ja_JP",
+        "currency": "JPY",
+        "latency_target_ms": 70,
+        "availability_target": 99.9
+      },
+      "ap-south-1": {
+        "name": "Unknown Region (ap-south-1)",
+        "compliance_standards": [
+          "ISO27001"
+        ],
+        "data_residency": "Unknown",
+        "default_locale": "en_US",
+        "currency": "USD",
+        "latency_target_ms": 100,
+        "availability_target": 99.0
+      },
+      "ca-central-1": {
+        "name": "Unknown Region (ca-central-1)",
+        "compliance_standards": [
+          "ISO27001"
+        ],
+        "data_residency": "Unknown",
+        "default_locale": "en_US",
+        "currency": "USD",
+        "latency_target_ms": 100,
+        "availability_target": 99.0
+      },
+      "sa-east-1": {
+        "name": "Unknown Region (sa-east-1)",
+        "compliance_standards": [
+          "ISO27001"
+        ],
+        "data_residency": "Unknown",
+        "default_locale": "en_US",
+        "currency": "USD",
+        "latency_target_ms": 100,
+        "availability_target": 99.0
+      }
+    },
+    "internationalization": {
+      "supported_locales": [
+        "en_US",
+        "es_ES",
+        "fr_FR",
+        "de_DE",
+        "ja_JP",
+        "zh_CN",
+        "ko_KR",
+        "pt_BR",
+        "ru_RU",
+        "it_IT"
+      ],
+      "default_locale": "en_US",
+      "translation_coverage": 10,
+      "locale_metadata": {
+        "en_US": {
+          "name": "English (US)",
+          "region": "North America",
+          "currency": "USD"
+        },
+        "es_ES": {
+          "name": "Español (España)",
+          "region": "Europe",
+          "currency": "EUR"
+        },
+        "fr_FR": {
+          "name": "Français (France)",
+          "region": "Europe",
+          "currency": "EUR"
+        },
+        "de_DE": {
+          "name": "Deutsch (Deutschland)",
+          "region": "Europe",
+          "currency": "EUR"
+        },
+        "ja_JP": {
+          "name": "日本語 (日本)",
+          "region": "Asia Pacific",
+          "currency": "JPY"
+        },
+        "zh_CN": {
+          "name": "中文 (中国)",
+          "region": "Asia Pacific",
+          "currency": "CNY"
+        },
+        "ko_KR": {
+          "name": "한국어 (대한민국)",
+          "region": "Asia Pacific",
+          "currency": "KRW"
+        },
+        "pt_BR": {
+          "name": "Português (Brasil)",
+          "region": "South America",
+          "currency": "BRL"
+        },
+        "ru_RU": {
+          "name": "Русский (Россия)",
+          "region": "Europe/Asia",
+          "currency": "RUB"
+        },
+        "it_IT": {
+          "name": "Italiano (Italia)",
+          "region": "Europe",
+          "currency": "EUR"
+        }
+      }
+    },
+    "compliance_framework": {
+      "supported_standards": [
+        "GDPR",
+        "CCPA",
+        "PDPA",
+        "SOC2",
+        "ISO27001",
+        "HIPAA"
+      ],
+      "compliance_rules": {
+        "GDPR": {
+          "name": "General Data Protection Regulation",
+          "jurisdiction": "European Union",
+          "requirements_count": 9
+        },
+        "CCPA": {
+          "name": "California Consumer Privacy Act",
+          "jurisdiction": "California, USA",
+          "requirements_count": 7
+        },
+        "PDPA": {
+          "name": "Personal Data Protection Act",
+          "jurisdiction": "Singapore",
+          "requirements_count": 7
+        },
+        "SOC2": {
+          "name": "Service Organization Control 2",
+          "jurisdiction": "United States",
+          "requirements_count": 8
+        },
+        "ISO27001": {
+          "name": "ISO/IEC 27001 Information Security Management",
+          "jurisdiction": "International",
+          "requirements_count": 8
+        },
+        "HIPAA": {
+          "name": "Health Insurance Portability and Accountability Act",
+          "jurisdiction": "United States",
+          "requirements_count": 7
+        }
+      }
+    },
+    "security_features": [
+      "multi_region_encryption",
+      "compliance_monitoring",
+      "localized_logging",
+      "regional_data_residency",
+      "gdpr_right_to_erasure",
+      "privacy_by_design"
+    ],
+    "scalability_metrics": {
+      "max_concurrent_users": 10000,
+      "target_response_time_ms": 200,
+      "auto_scaling_enabled": true,
+      "load_balancing": "multi_region"
+    }
+  }
+}

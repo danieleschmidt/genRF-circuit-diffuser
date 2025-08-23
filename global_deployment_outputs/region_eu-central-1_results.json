@@ -1,0 +1,20 @@
+{
+  "success": true,
+  "generation_time": 0.01750922203063965,
+  "locale": "de_DE",
+  "region": "eu-central-1",
+  "circuit_performance": {
+    "gain_db": 58.89923348551168,
+    "nf_db": 3.443926988780073,
+    "power_mw": 38.71884783075403
+  },
+  "compliance_score": 7.936507936507936,
+  "compliant_standards": 0,
+  "localized_summary": {
+    "Verstärkung (dB)": "58.90 dB",
+    "Rauschzahl (dB)": "3.44 dB",
+    "Stromverbrauch (mW)": "38.72 mW",
+    "Sicherheitsbewertung": "100.0/100",
+    "Zuverlässigkeitsbewertung": "90.0/100"
+  }
+}

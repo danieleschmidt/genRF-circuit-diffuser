@@ -1,0 +1,369 @@
+{
+  "quality_gates_summary": {
+    "overall_quality_score": 75.52203429043706,
+    "quality_grade": "ACCEPTABLE (C+)",
+    "execution_time": 0.8530189990997314,
+    "timestamp": "2025-08-23 17:46:58"
+  },
+  "test_results": {
+    "test_execution_time": 0.8491501808166504,
+    "generation_1_tests": {
+      "score": 100.0,
+      "total_tests": 4,
+      "passed_tests": 4,
+      "failed_tests": 0,
+      "tests": [
+        {
+          "test_name": "basic_circuit_generation",
+          "status": "PASS",
+          "execution_time": 0.00019979476928710938,
+          "details": {
+            "gain_db": 34.95606376971012,
+            "nf_db": 136.5228559366244,
+            "power_mw": 10.071071832028792,
+            "netlist_length": 448
+          }
+        },
+        {
+          "test_name": "lna_generation",
+          "status": "PASS",
+          "execution_time": 6.508827209472656e-05,
+          "details": {
+            "circuit_type": "LNA",
+            "generation_time": 4.792213439941406e-05
+          }
+        },
+        {
+          "test_name": "mixer_generation",
+          "status": "PASS",
+          "execution_time": 5.8650970458984375e-05,
+          "details": {
+            "circuit_type": "Mixer",
+            "generation_time": 4.553794860839844e-05
+          }
+        },
+        {
+          "test_name": "vco_generation",
+          "status": "PASS",
+          "execution_time": 7.43865966796875e-05,
+          "details": {
+            "circuit_type": "VCO",
+            "generation_time": 4.124641418457031e-05
+          }
+        }
+      ]
+    },
+    "generation_2_tests": {
+      "score": 100.0,
+      "total_tests": 3,
+      "passed_tests": 3,
+      "failed_tests": 0,
+      "tests": [
+        {
+          "test_name": "robust_circuit_generation",
+          "status": "PASS",
+          "execution_time": 0.0024285316467285156,
+          "details": {
+            "security_score": 100.0,
+            "reliability_score": 95.0,
+            "error_count": 0,
+            "warning_count": 1
+          }
+        },
+        {
+          "test_name": "security_validation",
+          "status": "PASS",
+          "execution_time": 3.0040740966796875e-05,
+          "details": {
+            "safe_params_valid": true,
+            "unsafe_params_valid": false,
+            "safe_netlist_valid": true,
+            "unsafe_netlist_valid": false,
+            "unsafe_param_errors": 4
+          }
+        },
+        {
+          "test_name": "error_handling_retry",
+          "status": "PASS",
+          "execution_time": 0.0022821426391601562,
+          "details": {
+            "generation_succeeded": true,
+            "total_attempts": 1,
+            "success_rate": 1.0,
+            "security_failures": 0
+          }
+        }
+      ]
+    },
+    "generation_3_tests": {
+      "score": 100.0,
+      "total_tests": 5,
+      "passed_tests": 5,
+      "failed_tests": 0,
+      "tests": [
+        {
+          "test_name": "batch_generation_performance",
+          "status": "PASS",
+          "execution_time": 0.11390876770019531,
+          "details": {
+            "total_circuits": 6,
+            "successful_circuits": 6,
+            "success_rate": 1.0,
+            "throughput_cps": 52.673732857788714,
+            "avg_circuit_time": 0.01898479461669922
+          }
+        },
+        {
+          "test_name": "bayesian_optimization",
+          "status": "PASS",
+          "execution_time": 0.016047000885009766,
+          "details": {
+            "algorithm": "bayesian",
+            "optimization_time": 0.016047000885009766,
+            "performance_score": 0
+          }
+        },
+        {
+          "test_name": "genetic_optimization",
+          "status": "PASS",
+          "execution_time": 0.015853404998779297,
+          "details": {
+            "algorithm": "genetic",
+            "optimization_time": 0.015853404998779297,
+            "performance_score": 0
+          }
+        },
+        {
+          "test_name": "particle_swarm_optimization",
+          "status": "PASS",
+          "execution_time": 0.03812813758850098,
+          "details": {
+            "algorithm": "particle_swarm",
+            "optimization_time": 0.03812813758850098,
+            "performance_score": 0
+          }
+        },
+        {
+          "test_name": "design_space_optimization",
+          "status": "PASS",
+          "execution_time": 0.3770864009857178,
+          "details": {
+            "total_points": 20,
+            "successful_points": 20,
+            "success_rate": 1.0,
+            "pareto_solutions": 10,
+            "optimization_efficiency": 0.5
+          }
+        }
+      ]
+    },
+    "integration_tests": {
+      "score": 50.0,
+      "total_tests": 2,
+      "passed_tests": 1,
+      "failed_tests": 1,
+      "tests": [
+        {
+          "test_name": "generation_compatibility",
+          "status": "PASS",
+          "execution_time": 0.001377105712890625,
+          "details": {
+            "gen1_gain": 32.96542579310416,
+            "gen2_gain": 36.32707048112533,
+            "gen1_power": 8.00836381703194,
+            "gen2_power": 4.232294221406802
+          }
+        },
+        {
+          "test_name": "performance_progression",
+          "status": "FAIL",
+          "execution_time": 0.013298988342285156,
+          "details": {
+            "gen1_time": 8.749961853027344e-05,
+            "gen2_time": 0.0008628368377685547,
+            "gen3_time": 0.012346506118774414,
+            "gen2_has_security": true,
+            "gen3_has_validation": true
+          }
+        }
+      ]
+    },
+    "performance_benchmarks": {
+      "benchmarks": [
+        {
+          "benchmark_name": "single_circuit_speed",
+          "avg_time_per_circuit": 0.016991138458251953,
+          "success_rate": 1.0,
+          "throughput_circuits_per_sec": 58.8542081778127,
+          "total_time": 0.08495569229125977,
+          "iterations": 5
+        },
+        {
+          "benchmark_name": "batch_scalability",
+          "scalability_results": [
+            {
+              "batch_size": 1,
+              "execution_time": 0.017542362213134766,
+              "successful_circuits": 1,
+              "throughput": 57.00486558482155,
+              "time_per_circuit": 0.017542362213134766,
+              "success_rate": 1.0
+            },
+            {
+              "batch_size": 3,
+              "execution_time": 0.055802106857299805,
+              "successful_circuits": 3,
+              "throughput": 53.761410974531195,
+              "time_per_circuit": 0.0186007022857666,
+              "success_rate": 1.0
+            },
+            {
+              "batch_size": 6,
+              "execution_time": 0.10874295234680176,
+              "successful_circuits": 6,
+              "throughput": 55.17598952863511,
+              "time_per_circuit": 0.018123825391133625,
+              "success_rate": 1.0
+            }
+          ],
+          "scaling_efficiency": [
+            1.0,
+            1.0603305335834081,
+            1.0331462303043482
+          ]
+        },
+        {
+          "benchmark_name": "memory_usage",
+          "error": "psutil not available for memory monitoring"
+        }
+      ],
+      "benchmark_summary": {
+        "total_benchmarks": 3,
+        "successful_benchmarks": 2,
+        "performance_scores": {
+          "single_circuit_speed": 99.83008861541748,
+          "batch_scalability": 96.98347332082959
+        },
+        "overall_performance_score": 98.40678096812354
+      }
+    },
+    "overall_status": "PASS",
+    "test_coverage": {
+      "functional_coverage": 85.0,
+      "integration_coverage": 75.0,
+      "performance_coverage": 80.0,
+      "security_coverage": 90.0,
+      "overall_coverage": 82.5
+    }
+  },
+  "security_audit": {
+    "audit_execution_time": 0.003041982650756836,
+    "overall_security_score": 36.66666666666667,
+    "security_grade": "F",
+    "code_security": {
+      "score": 6.666666666666671,
+      "total_violations": 14,
+      "checks": [
+        {
+          "file": "generation1_demo.py",
+          "violations": [
+            "open("
+          ],
+          "violation_count": 1
+        },
+        {
+          "file": "generation2_robust.py",
+          "violations": [
+            "eval(",
+            "exec(",
+            "system(",
+            "open("
+          ],
+          "violation_count": 4
+        },
+        {
+          "file": "generation3_scalable.py",
+          "violations": [
+            "open("
+          ],
+          "violation_count": 1
+        }
+      ],
+      "status": "FAIL"
+    },
+    "input_validation": {
+      "score": 0,
+      "error": "'<=' not supported between instances of 'str' and 'int'",
+      "status": "FAIL"
+    },
+    "output_sanitization": {
+      "score": 100,
+      "netlist_violations": [],
+      "parameter_violations": [],
+      "total_violations": 0,
+      "netlist_length": 1128,
+      "status": "PASS"
+    },
+    "dependency_security": {
+      "score": 40,
+      "total_dependencies": 11,
+      "vulnerabilities_found": [
+        {
+          "requirement": "torch>=1.12.0",
+          "vulnerability": "torch<1.0.0",
+          "cve": "CVE-2022-45907"
+        },
+        {
+          "requirement": "torchvision>=0.13.0",
+          "vulnerability": "torch<1.0.0",
+          "cve": "CVE-2022-45907"
+        },
+        {
+          "requirement": "numpy>=1.21.0",
+          "vulnerability": "numpy<1.16.0",
+          "cve": "CVE-2019-6446"
+        }
+      ],
+      "vulnerability_count": 3,
+      "status": "WARNING"
+    },
+    "recommendations": [
+      "Implement additional input validation checks",
+      "Add output sanitization for all generated content",
+      "Conduct regular dependency vulnerability scans",
+      "Implement proper error handling to prevent information disclosure",
+      "Add comprehensive logging and monitoring",
+      "Implement rate limiting and DoS protection",
+      "Consider professional security audit",
+      "Implement additional security controls before production deployment"
+    ]
+  },
+  "quality_breakdown": {
+    "functional_testing": 87.5,
+    "security_assessment": 36.66666666666667,
+    "performance_benchmarks": 98.40678096812354
+  },
+  "recommendations": [
+    "Increase test coverage for edge cases and error conditions",
+    "Implement additional input validation checks",
+    "Add output sanitization for all generated content",
+    "Conduct regular dependency vulnerability scans",
+    "Implement proper error handling to prevent information disclosure",
+    "Add comprehensive logging and monitoring",
+    "Implement rate limiting and DoS protection",
+    "Consider professional security audit",
+    "Implement additional security controls before production deployment",
+    "Implement additional monitoring and observability",
+    "Add more comprehensive integration testing"
+  ],
+  "deployment_readiness": {
+    "ready": false,
+    "conditions": {
+      "quality_score_acceptable": false,
+      "security_score_acceptable": false,
+      "no_critical_security_issues": false,
+      "all_generations_functional": true
+    },
+    "recommendation": "DO NOT DEPLOY - ADDRESS ISSUES FIRST"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "success": true,
+  "generation_time": 0.01859140396118164,
+  "locale": "fr_FR",
+  "region": "eu-west-1",
+  "circuit_performance": {
+    "gain_db": 60,
+    "nf_db": 4.025000954268626,
+    "power_mw": 23.27112735569766
+  },
+  "compliance_score": 7.936507936507936,
+  "compliant_standards": 0,
+  "localized_summary": {
+    "Gain (dB)": "60.00 dB",
+    "Figure de Bruit (dB)": "4.03 dB",
+    "Consommation (mW)": "23.27 mW",
+    "Score de Sécurité": "100.0/100",
+    "Score de Fiabilité": "85.0/100"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "success": true,
+  "generation_time": 0.019620180130004883,
+  "locale": "en_US",
+  "region": "us-east-1",
+  "circuit_performance": {
+    "gain_db": 53.36602352228404,
+    "nf_db": 3.6749660068345906,
+    "power_mw": 7.127717376210171
+  },
+  "compliance_score": 7.936507936507936,
+  "compliant_standards": 0,
+  "localized_summary": {
+    "Gain (dB)": "53.37 dB",
+    "Noise Figure (dB)": "3.67 dB",
+    "Power Consumption (mW)": "7.13 mW",
+    "Security Score": "100.0/100",
+    "Reliability Score": "95.0/100"
+  }
+}
