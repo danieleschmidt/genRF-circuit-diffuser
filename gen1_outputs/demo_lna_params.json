@@ -1,0 +1,25 @@
+{
+  "design_spec": {
+    "circuit_type": "LNA",
+    "frequency": 2400000000.0,
+    "name": "Demo_LNA"
+  },
+  "parameters": {
+    "input_inductance": 0.8702765627722183,
+    "input_capacitance": 4.477978371302731,
+    "transistor_width_1": 19.257693471129613,
+    "transistor_width_2": 63.02933291001523,
+    "bias_resistance_1": 36.40149234800985,
+    "bias_resistance_2": 39.54367678087952,
+    "load_resistance": 3.2584853492092893
+  },
+  "performance": {
+    "gain_db": 12.810397758408316,
+    "noise_figure_db": 1.0353918577771863,
+    "power_w": 0.010205334324307898,
+    "s11_db": -13.365032414852413,
+    "frequency_ghz": 2.4
+  },
+  "topology": "cascode_lna",
+  "generation_time": 0.0002818107604980469
+}

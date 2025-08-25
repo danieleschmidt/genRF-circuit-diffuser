@@ -3,10 +3,10 @@
 
 📊 Overall Statistics:
 - Total Circuits Generated: 3
-- Average Gain: 10.24 dB
-- Average Noise Figure: -25.26 dB  
-- Average Power: 34.34 mW
-- Average Generation Time: 0.54 ms
+- Average Gain: 13.74 dB
+- Average Noise Figure: -26.57 dB  
+- Average Power: 27.90 mW
+- Average Generation Time: 0.46 ms
 
 📈 Circuit Type Distribution:
 - LNA: 1 (33.3%)
@@ -15,23 +15,23 @@
 
 🔧 Individual Circuit Details:
 
-Circuit 1: 8d8ec011fdf91a3f
+Circuit 1: a77e2694dfd12a0b
   Type: LNA
-  Performance: Gain=21.8dB, NF=1.17dB, Power=1.0mW
-  Generation Time: 0.6ms
+  Performance: Gain=30.2dB, NF=1.20dB, Power=2.5mW
+  Generation Time: 0.5ms
   Validation Level: strict
   Warnings: 0
 
-Circuit 2: 15879bbe2d072342
+Circuit 2: b2a11b08ef33fa56
   Type: MIXER
-  Performance: Gain=8.9dB, NF=8.64dB, Power=97.9mW
-  Generation Time: 0.4ms
+  Performance: Gain=11.1dB, NF=10.49dB, Power=73.4mW
+  Generation Time: 0.5ms
   Validation Level: strict
   Warnings: 0
 
-Circuit 3: a06b8de9cdf970f0
+Circuit 3: 1a830c724eae534b
   Type: VCO
-  Performance: Gain=0.0dB, NF=-85.60dB, Power=4.1mW
-  Generation Time: 0.6ms
+  Performance: Gain=0.0dB, NF=-91.38dB, Power=7.7mW
+  Generation Time: 0.4ms
   Validation Level: strict
   Warnings: 0

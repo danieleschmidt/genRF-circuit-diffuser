@@ -1,0 +1,54 @@
+{
+  "circuit_info": {
+    "id": "a77e2694dfd12a0b",
+    "type": "LNA",
+    "validation_level": "strict"
+  },
+  "performance": {
+    "gain_db": 30.158,
+    "noise_figure_db": 1.195,
+    "power_w": 0.002545,
+    "generation_time_ms": 0.5
+  },
+  "components": {
+    "transistor_M1": {
+      "type": "NMOS",
+      "W": 0.00012,
+      "L": 6.5e-08,
+      "multiplier": 1
+    },
+    "inductor_L1": {
+      "value": 2.2e-09,
+      "Q": 19.080000000000002
+    },
+    "capacitor_C1": {
+      "value": 1.2e-12
+    },
+    "resistor_R1": {
+      "value": 53.0
+    },
+    "bias_current": {
+      "value": 0.002
+    }
+  },
+  "netlist": "* Enhanced Low Noise Amplifier\n* Technology: TSMC65nm\n* Temperature: 85\u00b0C, VDD: 1.8V\n.subckt LNA_ENHANCED in out vdd gnd\n.param temp_coeff=1.06\n\n* Main amplifying transistor\nM1 out in bias gnd nmos w=0.00012 l=6.5e-08 m=1\n\n* Load inductor\nL1 vdd out 2.2e-09 Q=19.080000000000002\n\n* Input matching\nC1 in gnd 1.2e-12\n\n* Bias network\nRbias bias gnd 53.0\nIbias bias gnd 0.002\n\n* Temperature and voltage monitoring\n.ic v(vdd)=1.8\n.temp 85\n\n.ends LNA_ENHANCED\n.end",
+  "warnings": [],
+  "metadata": {
+    "generation_timestamp": 1756084224.3369777,
+    "specification": {
+      "circuit_type": "LNA",
+      "frequency": 2400000000.0,
+      "gain_min": 18,
+      "nf_max": 1.2,
+      "power_max": 0.008,
+      "technology": "TSMC65nm",
+      "temperature": 85,
+      "voltage_supply": 1.8,
+      "process_corner": "SS"
+    },
+    "temperature_factor": 1.06,
+    "voltage_factor": 1.0,
+    "random_seed": 8592642636477224661,
+    "process_corner": "SS"
+  }
+}
