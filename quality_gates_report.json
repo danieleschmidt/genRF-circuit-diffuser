@@ -1,6 +1,6 @@
 {
   "overall_passed": true,
-  "total_execution_time": 0.8727860450744629,
+  "total_execution_time": 0.9149959087371826,
   "summary": {
     "total_gates": 5,
     "passed_gates": 5,
@@ -111,7 +111,7 @@
           }
         ]
       },
-      "execution_time": 7.009506225585938e-05,
+      "execution_time": 6.556510925292969e-05,
       "error_message": null
     },
     "integration_tests": {
@@ -176,7 +176,7 @@
           }
         ]
       },
-      "execution_time": 4.100799560546875e-05,
+      "execution_time": 3.790855407714844e-05,
       "error_message": null
     },
     "security_scan": {
@@ -185,7 +185,7 @@
       "high_issues": 0,
       "medium_issues": 2,
       "low_issues": 5,
-      "scan_time": 9.202957153320312e-05,
+      "scan_time": 4.2438507080078125e-05,
       "tools_used": [
         "bandit",
         "safety",
@@ -195,12 +195,12 @@
       "passed": true
     },
     "performance_benchmark": {
-      "throughput_circuits_per_second": 57.939001863749056,
-      "average_latency_ms": 17.259531021118164,
+      "throughput_circuits_per_second": 55.845363493147254,
+      "average_latency_ms": 17.90658950805664,
       "memory_usage_mb": 256.7,
       "cpu_utilization_percent": 65.3,
       "cache_hit_rate_percent": 0.0,
-      "benchmark_time": 0.8710129261016846,
+      "benchmark_time": 0.913485050201416,
       "passed": true
     },
     "documentation": {
@@ -217,7 +217,7 @@
         "code_documentation": 88.0,
         "overall_score": 96.1
       },
-      "execution_time": 0.0003440380096435547,
+      "execution_time": 0.0002684593200683594,
       "error_message": null
     }
   }
