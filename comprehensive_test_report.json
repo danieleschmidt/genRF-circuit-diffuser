@@ -1,130 +1,130 @@
 {
-  "timestamp": 1755717356.9199557,
+  "timestamp": 1756166257.7359924,
   "total_tests": 20,
   "passed": 20,
   "failed": 0,
   "errors": 0,
   "success_rate": 1.0,
-  "total_time": 0.0959324836730957,
+  "total_time": 0.10381436347961426,
   "test_results": [
     {
       "test_name": "test_circuit_result_creation (__main__.TestCoreModules.test_circuit_result_creation)",
       "status": "PASS",
-      "duration": 0.021151304244995117,
+      "duration": 0.02506732940673828,
       "error": null
     },
     {
       "test_name": "test_design_spec_creation (__main__.TestCoreModules.test_design_spec_creation)",
       "status": "PASS",
-      "duration": 0.0011670589447021484,
+      "duration": 0.0018794536590576172,
       "error": null
     },
     {
       "test_name": "test_security_manager (__main__.TestCoreModules.test_security_manager)",
       "status": "PASS",
-      "duration": 0.0009963512420654297,
+      "duration": 0.0015473365783691406,
       "error": null
     },
     {
       "test_name": "test_physics_constraints (__main__.TestPhysicsInformedModels.test_physics_constraints)",
       "status": "PASS",
-      "duration": 5.9604644775390625e-06,
+      "duration": 7.867813110351562e-06,
       "error": null
     },
     {
       "test_name": "test_physics_informed_diffusion_model (__main__.TestPhysicsInformedModels.test_physics_informed_diffusion_model)",
       "status": "PASS",
-      "duration": 3.337860107421875e-06,
+      "duration": 3.5762786865234375e-06,
       "error": null
     },
     {
       "test_name": "test_architecture_encoder (__main__.TestNeuralArchitectureSearch.test_architecture_encoder)",
       "status": "PASS",
-      "duration": 0.0011796951293945312,
+      "duration": 0.0014309883117675781,
       "error": null
     },
     {
       "test_name": "test_circuit_topology_space (__main__.TestNeuralArchitectureSearch.test_circuit_topology_space)",
       "status": "PASS",
-      "duration": 0.001340627670288086,
+      "duration": 0.0020189285278320312,
       "error": null
     },
     {
       "test_name": "test_quantum_inspired_search (__main__.TestNeuralArchitectureSearch.test_quantum_inspired_search)",
       "status": "PASS",
-      "duration": 3.814697265625e-06,
+      "duration": 5.0067901611328125e-06,
       "error": null
     },
     {
       "test_name": "test_circuit_recovery_engine (__main__.TestRobustValidation.test_circuit_recovery_engine)",
       "status": "PASS",
-      "duration": 0.0010769367218017578,
+      "duration": 0.0012845993041992188,
       "error": null
     },
     {
       "test_name": "test_physics_constraint_validator (__main__.TestRobustValidation.test_physics_constraint_validator)",
       "status": "PASS",
-      "duration": 0.0009987354278564453,
+      "duration": 0.0013282299041748047,
       "error": null
     },
     {
       "test_name": "test_gpu_accelerated_simulator (__main__.TestHighPerformanceComputing.test_gpu_accelerated_simulator)",
       "status": "PASS",
-      "duration": 3.5762786865234375e-06,
+      "duration": 5.7220458984375e-06,
       "error": null
     },
     {
       "test_name": "test_intelligent_cache (__main__.TestHighPerformanceComputing.test_intelligent_cache)",
       "status": "PASS",
-      "duration": 0.0008678436279296875,
+      "duration": 0.001352071762084961,
       "error": null
     },
     {
       "test_name": "test_malicious_circuit_detection (__main__.TestSecurityAndCompliance.test_malicious_circuit_detection)",
       "status": "PASS",
-      "duration": 0.00016880035400390625,
+      "duration": 0.0002696514129638672,
       "error": null
     },
     {
       "test_name": "test_regulatory_compliance_checker (__main__.TestSecurityAndCompliance.test_regulatory_compliance_checker)",
       "status": "PASS",
-      "duration": 0.00011682510375976562,
+      "duration": 0.00015211105346679688,
       "error": null
     },
     {
       "test_name": "test_circuit_graph (__main__.TestGraphNeuralDiffusion.test_circuit_graph)",
       "status": "PASS",
-      "duration": 3.0994415283203125e-06,
+      "duration": 4.76837158203125e-06,
       "error": null
     },
     {
       "test_name": "test_graph_transformer_conv (__main__.TestGraphNeuralDiffusion.test_graph_transformer_conv)",
       "status": "PASS",
-      "duration": 1.6689300537109375e-06,
+      "duration": 2.6226043701171875e-06,
       "error": null
     },
     {
       "test_name": "test_circuit_generation_performance (__main__.PerformanceBenchmark.test_circuit_generation_performance)",
       "status": "PASS",
-      "duration": 0.04509687423706055,
+      "duration": 0.04544401168823242,
       "error": null
     },
     {
       "test_name": "test_memory_efficiency (__main__.PerformanceBenchmark.test_memory_efficiency)",
       "status": "PASS",
-      "duration": 0.0004703998565673828,
+      "duration": 0.0004944801330566406,
       "error": null
     },
     {
       "test_name": "test_end_to_end_circuit_generation (__main__.IntegrationTest.test_end_to_end_circuit_generation)",
       "status": "PASS",
-      "duration": 0.00018262863159179688,
+      "duration": 0.00021719932556152344,
       "error": null
     },
     {
       "test_name": "test_error_handling_and_recovery (__main__.IntegrationTest.test_error_handling_and_recovery)",
       "status": "PASS",
-      "duration": 0.020676136016845703,
+      "duration": 0.020772218704223633,
       "error": null
     }
   ],
