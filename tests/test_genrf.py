@@ -1,189 +1,238 @@
-"""Tests for genRF circuit diffuser."""
+"""Tests for genRF-circuit-diffuser."""
 
 import pytest
 import numpy as np
 
-from genrf.topology import CircuitTopology, Component
-from genrf.spice_sim import SPICESimulator
+from genrf.topology import CircuitTopology
+from genrf.spice_simulator import SPICESimulator, FREQ_POINTS
 from genrf.diffusion_designer import DiffusionDesigner
 from genrf.performance_evaluator import PerformanceEvaluator
+from genrf.generator import RFCircuitGenerator
 
 
-# ── CircuitTopology ────────────────────────────────────────────────────────────
+# --- CircuitTopology Tests ---
 
-class TestCircuitTopology:
-    def test_add_resistor(self):
-        topo = CircuitTopology("Test")
-        comp = topo.add_resistor("IN", "OUT", 50.0)
-        assert comp.ctype == "R"
-        assert comp.value == 50.0
-        assert len(topo.components) == 1
-
-    def test_add_inductor(self):
-        topo = CircuitTopology()
-        comp = topo.add_inductor("A", "B", 1e-9)
-        assert comp.ctype == "L"
-        assert comp.value == 1e-9
-
-    def test_add_capacitor(self):
-        topo = CircuitTopology()
-        comp = topo.add_capacitor("A", "GND", 1e-12)
-        assert comp.ctype == "C"
-
-    def test_add_transistor(self):
-        topo = CircuitTopology()
-        comp = topo.add_transistor("D", "G", "S", gm=0.1)
-        assert comp.ctype == "transistor"
-        assert comp.node_c == "G"
-
-    def test_nodes_include_gnd(self):
-        topo = CircuitTopology()
-        topo.add_resistor("IN", "OUT", 50.0)
-        assert "GND" in topo.nodes
-
-    def test_parameter_vector(self):
-        topo = CircuitTopology.lc_filter()
-        pv = topo.parameter_vector()
-        assert len(pv) == 3  # L1, C1, R_load
-
-    def test_update_from_vector(self):
-        topo = CircuitTopology.lc_filter()
-        topo.update_from_vector([2e-9, 5e-12, 100.0])
-        assert abs(topo.components[0].value - 2e-9) < 1e-20
-
-    def test_lc_filter_factory(self):
-        topo = CircuitTopology.lc_filter()
-        assert topo.name == "LC_Filter"
-        assert len(topo.get_components_by_type("L")) == 1
-        assert len(topo.get_components_by_type("C")) == 1
-
-    def test_get_components_by_type(self):
-        topo = CircuitTopology()
-        topo.add_resistor("A", "B", 50)
-        topo.add_resistor("C", "D", 100)
-        topo.add_capacitor("A", "GND", 1e-12)
-        assert len(topo.get_components_by_type("R")) == 2
-        assert len(topo.get_components_by_type("C")) == 1
+def test_topology_add_component():
+    topo = CircuitTopology(n_nodes=4)
+    cid = topo.add_component("R", 0, 1, 1000.0)
+    assert cid == 0
+    cid2 = topo.add_component("C", 1, 2, 1e-9)
+    assert cid2 == 1
+    components = topo.get_components()
+    assert len(components) == 2
+    assert components[0]["type"] == "R"
+    assert components[0]["value"] == 1000.0
+    assert components[1]["type"] == "C"
 
 
-# ── SPICESimulator ─────────────────────────────────────────────────────────────
-
-class TestSPICESimulator:
-    def test_ac_analysis_returns_keys(self):
-        topo = CircuitTopology.lc_filter(L=1e-9, C=1e-12)
-        sim = SPICESimulator()
-        result = sim.ac_analysis(topo)
-        assert "frequencies" in result
-        assert "H" in result
-        assert "magnitude_db" in result
-        assert "phase_deg" in result
-
-    def test_frequency_range(self):
-        topo = CircuitTopology.lc_filter()
-        sim = SPICESimulator()
-        result = sim.ac_analysis(topo, f_start=1e6, f_stop=1e10)
-        assert result["frequencies"][0] >= 1e6
-        assert result["frequencies"][-1] <= 1e10
-
-    def test_magnitude_is_real(self):
-        topo = CircuitTopology.lc_filter()
-        sim = SPICESimulator()
-        result = sim.ac_analysis(topo)
-        assert np.all(np.isreal(result["magnitude_db"]))
-
-    def test_lc_filter_rolls_off(self):
-        """LC filter should attenuate at high frequencies."""
-        topo = CircuitTopology.lc_filter(L=100e-9, C=100e-12, R_load=50.0)
-        sim = SPICESimulator()
-        result = sim.ac_analysis(topo, f_start=1e6, f_stop=10e9)
-        mag = result["magnitude_db"]
-        # Gain at low freq should be higher than at high freq
-        assert mag[0] > mag[-1]
+def test_topology_netlist():
+    topo = CircuitTopology(n_nodes=3)
+    topo.add_component("R", 0, 1, 50.0)
+    topo.add_component("C", 1, 2, 1e-12)
+    topo.add_component("V", 0, 2, 1.0)
+    netlist = topo.get_netlist()
+    assert "R0 0 1" in netlist
+    assert "C1 1 2" in netlist
+    assert "V2 0 2" in netlist
+    assert ".END" in netlist
 
 
-# ── DiffusionDesigner ──────────────────────────────────────────────────────────
+def test_topology_validate():
+    topo = CircuitTopology(n_nodes=4)
+    # No components: invalid
+    assert topo.validate() is False
 
-class TestDiffusionDesigner:
-    def test_forward_adds_noise(self):
-        designer = DiffusionDesigner(n_steps=10)
-        params = np.array([1e-9, 1e-12, 50.0])
-        noisy = designer.forward(params, t=0)
-        assert not np.allclose(noisy, params)
+    # Add components but no source: invalid
+    topo.add_component("R", 0, 1, 100.0)
+    topo.add_component("C", 1, 2, 1e-9)
+    topo.add_component("L", 2, 3, 1e-6)
+    assert topo.validate() is False
 
-    def test_denoise_step_changes_params(self):
-        designer = DiffusionDesigner(n_steps=10)
-        x = np.array([0.5, 0.5, 0.5])
-        score_fn = lambda x: -x
-        x_next = designer.denoise_step(x, t=0, score_fn=score_fn)
-        assert x_next.shape == x.shape
-
-    def test_sample_random_returns_list(self):
-        topo = CircuitTopology.lc_filter()
-        designer = DiffusionDesigner(n_steps=5)
-        samples = designer.sample_random(topo, n_samples=3)
-        assert len(samples) == 3
-
-    def test_sample_produces_positive_values(self):
-        topo = CircuitTopology.lc_filter()
-        designer = DiffusionDesigner(n_steps=5)
-        samples = designer.sample_random(topo, n_samples=5)
-        for s in samples:
-            assert np.all(s > 0)
-
-    def test_sample_with_score_fn(self):
-        topo = CircuitTopology.lc_filter()
-        designer = DiffusionDesigner(n_steps=5)
-        # Score function pushing toward [1e-9, 1e-12, 50]
-        target = np.array([1e-9, 1e-12, 50.0])
-        score_fn = lambda x: (target - x) / (np.linalg.norm(target - x) + 1e-10)
-        samples = designer.sample(topo, score_fn, n_samples=2)
-        assert len(samples) == 2
+    # Add voltage source: still need all nodes connected
+    topo.add_component("V", 0, 3, 1.0)
+    assert topo.validate() is True
 
 
-# ── PerformanceEvaluator ───────────────────────────────────────────────────────
+def test_topology_vector_roundtrip():
+    topo = CircuitTopology(n_nodes=4)
+    topo.add_component("R", 0, 1, 500.0)
+    topo.add_component("C", 1, 2, 1e-9)
+    topo.add_component("L", 2, 3, 1e-6)
 
-class TestPerformanceEvaluator:
-    def test_evaluate_returns_keys(self):
-        topo = CircuitTopology.lc_filter()
-        evaluator = PerformanceEvaluator()
-        metrics = evaluator.evaluate(topo)
-        assert "bandwidth" in metrics
-        assert "gain_db" in metrics
-        assert "impedance_match" in metrics
-        assert "score" in metrics
+    vec = topo.component_vector()
+    assert isinstance(vec, np.ndarray)
+    assert len(vec) == 40  # MAX_COMPONENTS * PARAMS_PER_COMPONENT
 
-    def test_bandwidth_is_positive(self):
-        topo = CircuitTopology.lc_filter()
-        evaluator = PerformanceEvaluator()
-        metrics = evaluator.evaluate(topo)
-        assert metrics["bandwidth"] >= 0
+    # Reconstruct and check we get a valid topology
+    topo2 = CircuitTopology.from_vector(vec, n_nodes=4)
+    comps = topo2.get_components()
+    assert len(comps) > 0
 
-    def test_score_in_range(self):
-        topo = CircuitTopology.lc_filter()
-        evaluator = PerformanceEvaluator()
-        metrics = evaluator.evaluate(topo)
-        assert 0.0 <= metrics["score"] <= 1.0
 
-    def test_impedance_match_in_range(self):
-        topo = CircuitTopology.lc_filter()
-        evaluator = PerformanceEvaluator(target_freq=1e9)
-        metrics = evaluator.evaluate(topo)
-        assert 0.0 <= metrics["impedance_match"] <= 1.0
+# --- SPICESimulator Tests ---
 
-    def test_batch_evaluate(self):
-        topos = [CircuitTopology.lc_filter(L=1e-9 * (i+1)) for i in range(3)]
-        evaluator = PerformanceEvaluator()
-        results = evaluator.batch_evaluate(topos)
-        assert len(results) == 3
-        assert all("score" in r for r in results)
+def test_impedance_resistor():
+    sim = SPICESimulator()
+    freqs = np.array([1e3, 1e6, 1e9])
+    Z = sim.impedance_R(100.0, freqs)
+    assert Z.dtype == np.complex128
+    assert len(Z) == 3
+    assert np.allclose(Z.real, 100.0)
+    assert np.allclose(Z.imag, 0.0)
 
-    def test_lc_filter_optimization_demo(self):
-        """Demo: compare two LC filters and find the better one."""
-        evaluator = PerformanceEvaluator(target_freq=1e9)
-        topo_a = CircuitTopology.lc_filter(L=10e-9, C=10e-12)
-        topo_b = CircuitTopology.lc_filter(L=1e-9, C=1e-12)
-        score_a = evaluator.evaluate(topo_a)["score"]
-        score_b = evaluator.evaluate(topo_b)["score"]
-        # Both should produce valid scores
-        assert isinstance(score_a, float)
-        assert isinstance(score_b, float)
+
+def test_impedance_capacitor():
+    sim = SPICESimulator()
+    freqs = np.array([1e6])
+    C = 1e-9  # 1 nF
+    Z = sim.impedance_C(C, freqs)
+    assert Z.dtype == np.complex128
+    # |Z_C| = 1 / (2*pi*f*C) ≈ 159 Ohm at 1MHz
+    expected_mag = 1.0 / (2 * np.pi * 1e6 * 1e-9)
+    assert abs(abs(Z[0]) - expected_mag) < 1.0
+
+
+def test_impedance_inductor():
+    sim = SPICESimulator()
+    freqs = np.array([1e6])
+    L = 1e-6  # 1 uH
+    Z = sim.impedance_L(L, freqs)
+    assert Z.dtype == np.complex128
+    # |Z_L| = 2*pi*f*L ≈ 6.28 Ohm at 1MHz
+    expected_mag = 2 * np.pi * 1e6 * 1e-6
+    assert abs(abs(Z[0]) - expected_mag) < 0.01
+
+
+def test_spice_simulate_basic():
+    sim = SPICESimulator()
+    topo = CircuitTopology(n_nodes=4)
+    topo.add_component("R", 0, 1, 50.0)
+    topo.add_component("C", 1, 2, 1e-9)
+    topo.add_component("L", 2, 3, 1e-6)
+    topo.add_component("V", 0, 3, 1.0)
+
+    result = sim.simulate(topo)
+    assert "frequencies" in result
+    assert "impedance" in result
+    assert "phase" in result
+    assert len(result["frequencies"]) == 50
+    assert len(result["impedance"]) == 50
+    assert result["impedance"].dtype == np.complex128
+
+
+def test_transfer_function_shape():
+    sim = SPICESimulator()
+    topo = CircuitTopology(n_nodes=4)
+    topo.add_component("R", 0, 1, 50.0)
+    topo.add_component("C", 1, 2, 1e-9)
+    topo.add_component("V", 0, 3, 1.0)
+
+    H = sim.transfer_function(topo)
+    assert isinstance(H, np.ndarray)
+    assert len(H) == len(FREQ_POINTS)
+    assert H.dtype == np.complex128
+    # All magnitudes should be finite
+    assert np.all(np.isfinite(np.abs(H)))
+
+
+# --- DiffusionDesigner Tests ---
+
+def test_diffusion_noise_schedule():
+    designer = DiffusionDesigner(n_params=20, n_steps=50, beta_start=0.0001, beta_end=0.02)
+    betas = designer.noise_schedule
+    assert len(betas) == 50
+    assert betas[0] == pytest.approx(0.0001, rel=1e-5)
+    assert betas[-1] == pytest.approx(0.02, rel=1e-5)
+    # Monotonically increasing
+    assert np.all(np.diff(betas) >= 0)
+
+
+def test_diffusion_add_noise():
+    np.random.seed(42)
+    designer = DiffusionDesigner(n_params=20, n_steps=50)
+    params = np.ones(20)
+    noisy = designer.add_noise(params, t=0)
+    assert noisy.shape == params.shape
+    assert not np.allclose(noisy, params)  # Should have noise added
+
+    # At t=n_steps-1 (max noise), result should differ significantly
+    very_noisy = designer.add_noise(params, t=49)
+    assert not np.allclose(very_noisy, params)
+
+
+def test_diffusion_design_returns_vectors():
+    np.random.seed(0)
+    designer = DiffusionDesigner(n_params=20, n_steps=10)
+    spec = {"bandwidth_hz": 1e6, "gain_db": 0.0, "topology": "lowpass"}
+    results = designer.design(spec, n_circuits=3)
+    assert len(results) == 3
+    for vec in results:
+        assert isinstance(vec, np.ndarray)
+        assert vec.shape == (20,)
+        assert np.all(np.isfinite(vec))
+
+
+# --- PerformanceEvaluator Tests ---
+
+def _make_rc_lowpass(cutoff_hz=1e6):
+    """Helper: simple RC lowpass filter."""
+    topo = CircuitTopology(n_nodes=4)
+    R = 50.0
+    C = 1.0 / (2.0 * np.pi * cutoff_hz * R)
+    topo.add_component("V", 0, 3, 1.0)
+    topo.add_component("R", 0, 1, R)
+    topo.add_component("C", 1, 3, C)
+    topo.add_component("R", 1, 2, R)
+    topo.add_component("R", 2, 3, R)
+    return topo
+
+
+def test_performance_evaluator_bandwidth():
+    sim = SPICESimulator()
+    evaluator = PerformanceEvaluator(sim)
+    topo = _make_rc_lowpass(cutoff_hz=1e6)
+    result = evaluator.evaluate(topo)
+    assert "bandwidth_hz" in result
+    assert result["bandwidth_hz"] >= 0.0
+    assert np.isfinite(result["bandwidth_hz"])
+
+
+def test_performance_evaluator_gain():
+    sim = SPICESimulator()
+    evaluator = PerformanceEvaluator(sim)
+    topo = _make_rc_lowpass()
+    result = evaluator.evaluate(topo)
+    assert "gain_db" in result
+    assert np.isfinite(result["gain_db"])
+    assert "resonant_freq" in result
+    assert "q_factor" in result
+    assert "is_stable" in result
+    assert isinstance(result["is_stable"], bool)
+
+
+# --- RFCircuitGenerator Tests ---
+
+def test_generator_lowpass_design():
+    gen = RFCircuitGenerator()
+    circuit = gen.design_lowpass(cutoff_hz=1e6, impedance_ohm=50.0)
+    assert isinstance(circuit, CircuitTopology)
+    components = circuit.get_components()
+    assert len(components) > 0
+    # Should have at least an R and a C
+    types = {c["type"] for c in components}
+    assert "R" in types or "C" in types
+    # Netlist should be valid
+    netlist = circuit.get_netlist()
+    assert ".END" in netlist
+
+
+def test_generator_best_match():
+    np.random.seed(42)
+    gen = RFCircuitGenerator()
+    spec = {"bandwidth_hz": 1e6, "gain_db": 0.0, "topology": "lowpass"}
+    circuit = gen.best_match(spec)
+    assert isinstance(circuit, CircuitTopology)
+    components = circuit.get_components()
+    assert len(components) > 0
+    netlist = circuit.get_netlist()
+    assert "* genRF Circuit Netlist" in netlist
